@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Alexei Barantsev
+ * Copyright 2017 Alexei Barantsev
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,22 @@ package ru.stqa.linkchecker;
 
 import java.net.URL;
 
-public class ScanSettings {
+public class ScanWorker implements Runnable {
 
-    private URL startUrl;
-    private int threadCount;
+    private ScanSession session;
+    private URL url;
 
-    public ScanSettings(URL startUrl, int threadCount) {
-        this.startUrl = startUrl;
-        this.threadCount = threadCount;
+    public ScanWorker(ScanSession session, URL url) {
+        this.session = session;
+        this.url = url;
     }
 
-    public URL getStartUrl() {
-        return startUrl;
+    @Override
+    public void run() {
+        session.done(this);
     }
 
-    public int getThreadCount() {
-        return threadCount;
+    public URL getUrl() {
+        return url;
     }
 }

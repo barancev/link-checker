@@ -18,15 +18,18 @@ package ru.stqa.linkchecker;
 
 import org.junit.jupiter.api.Test;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class ScanSessionTest {
 
     @Test
-    void emptyScanSessionStops() {
-        ScanSession session = new ScanSession(new ScanSettings());
-        session.start();
+    void emptyScanSessionStops() throws MalformedURLException, InterruptedException {
+        ScanSettings settings = new ScanSettings(new URL("http://locahost/"), 10);
+        ScanSession session = new ScanSession(settings);
 
-        while (session.isAlive()) {
-            Thread.yield();
-        }
+        Thread t = new Thread(session);
+        t.start();
+        t.join();
     }
 }

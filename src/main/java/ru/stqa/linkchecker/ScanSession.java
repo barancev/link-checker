@@ -16,9 +16,18 @@
 
 package ru.stqa.linkchecker;
 
-public class ScanSession extends Thread {
+import java.net.URL;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class ScanSession implements Runnable {
 
     private ScanSettings settings;
+    private AtomicInteger workerCounter = new AtomicInteger();
+    private ConcurrentLinkedQueue<URL> urlQueue = new ConcurrentLinkedQueue<>();
 
     public ScanSession(ScanSettings settings) {
         this.settings = settings;
@@ -26,6 +35,22 @@ public class ScanSession extends Thread {
 
     @Override
     public void run() {
-        super.run();
+        urlQueue.add(settings.getStartUrl());
+
+        ExecutorService service = Executors.newFixedThreadPool(settings.getThreadCount());
+
+        while (workerCounter.intValue() > 0 || urlQueue.size() > 0) {
+            Optional.ofNullable(urlQueue.poll()).ifPresent(url -> {
+                System.out.println("start worker for " + url);
+                service.submit(new ScanWorker(this, url));
+                workerCounter.incrementAndGet();
+            });
+            Thread.yield();
+        }
+    }
+
+    public void done(ScanWorker worker) {
+        System.out.println("stop worker for " + worker.getUrl());
+        workerCounter.decrementAndGet();
     }
 }
