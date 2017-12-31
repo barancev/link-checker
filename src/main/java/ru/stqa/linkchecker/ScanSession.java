@@ -25,38 +25,38 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScanSession implements Runnable {
 
-    private ScanSettings settings;
-    private ScanResults results = new ScanResults();
-    private AtomicInteger workerCounter = new AtomicInteger();
-    private ConcurrentLinkedQueue<URL> urlQueue = new ConcurrentLinkedQueue<>();
+  private ScanSettings settings;
+  private ScanResults results = new ScanResults();
+  private AtomicInteger workerCounter = new AtomicInteger();
+  private ConcurrentLinkedQueue<URL> urlQueue = new ConcurrentLinkedQueue<>();
 
-    public ScanSession(ScanSettings settings) {
-        this.settings = settings;
+  public ScanSession(ScanSettings settings) {
+    this.settings = settings;
+  }
+
+  @Override
+  public void run() {
+    urlQueue.add(settings.getStartUrl());
+
+    ExecutorService service = Executors.newFixedThreadPool(settings.getThreadCount());
+
+    while (workerCounter.intValue() > 0 || urlQueue.size() > 0) {
+      Optional.ofNullable(urlQueue.poll()).ifPresent(url -> {
+        System.out.println("start worker for " + url);
+        service.submit(new ScanWorker(this, url));
+        workerCounter.incrementAndGet();
+      });
+      Thread.yield();
     }
+  }
 
-    @Override
-    public void run() {
-        urlQueue.add(settings.getStartUrl());
+  public void done(ScanWorker worker) {
+    System.out.println("stop worker for " + worker.getPageInfo().getUrl());
+    results.addPageInfo(worker.getPageInfo());
+    workerCounter.decrementAndGet();
+  }
 
-        ExecutorService service = Executors.newFixedThreadPool(settings.getThreadCount());
-
-        while (workerCounter.intValue() > 0 || urlQueue.size() > 0) {
-            Optional.ofNullable(urlQueue.poll()).ifPresent(url -> {
-                System.out.println("start worker for " + url);
-                service.submit(new ScanWorker(this, url));
-                workerCounter.incrementAndGet();
-            });
-            Thread.yield();
-        }
-    }
-
-    public void done(ScanWorker worker) {
-        System.out.println("stop worker for " + worker.getPageInfo().getUrl());
-        results.addPageInfo(worker.getPageInfo());
-        workerCounter.decrementAndGet();
-    }
-
-    public ScanResults getResults() {
-        return results;
-    }
+  public ScanResults getResults() {
+    return results;
+  }
 }

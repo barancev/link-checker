@@ -20,19 +20,19 @@ import java.net.URL;
 
 public class ScanSettings {
 
-    private URL startUrl;
-    private int threadCount;
+  private URL startUrl;
+  private int threadCount;
 
-    public ScanSettings(URL startUrl, int threadCount) {
-        this.startUrl = startUrl;
-        this.threadCount = threadCount;
-    }
+  public ScanSettings(URL startUrl, int threadCount) {
+    this.startUrl = startUrl;
+    this.threadCount = threadCount;
+  }
 
-    public URL getStartUrl() {
-        return startUrl;
-    }
+  public URL getStartUrl() {
+    return startUrl;
+  }
 
-    public int getThreadCount() {
-        return threadCount;
-    }
+  public int getThreadCount() {
+    return threadCount;
+  }
 }

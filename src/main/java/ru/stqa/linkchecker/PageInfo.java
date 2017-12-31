@@ -20,13 +20,13 @@ import java.net.URL;
 
 public class PageInfo {
 
-    private URL url;
+  private URL url;
 
-    public PageInfo(URL url) {
-        this.url = url;
-    }
+  public PageInfo(URL url) {
+    this.url = url;
+  }
 
-    public URL getUrl() {
-        return url;
-    }
+  public URL getUrl() {
+    return url;
+  }
 }

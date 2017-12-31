@@ -25,34 +25,34 @@ import java.net.URL;
 
 class ScanWorker implements Runnable {
 
-    private ScanSession session;
-    private URL url;
-    private PageInfo pageInfo;
+  private ScanSession session;
+  private URL url;
+  private PageInfo pageInfo;
 
-    ScanWorker(ScanSession session, URL url) {
-        this.session = session;
-        this.url = url;
-    }
+  ScanWorker(ScanSession session, URL url) {
+    this.session = session;
+    this.url = url;
+  }
 
-    @Override
-    public void run() {
-        try {
-            pageInfo =  handle(url);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        session.done(this);
+  @Override
+  public void run() {
+    try {
+      pageInfo = handle(url);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
+    session.done(this);
+  }
 
-    private PageInfo handle(URL url) throws IOException {
-        return Executor.newInstance().execute(Request.Get(url.toString())).handleResponse(response -> {
-            PageInfo pageInfo = new PageInfo(url);
-            String body = EntityUtils.toString(response.getEntity());
-            return pageInfo;
-        });
-    }
+  private PageInfo handle(URL url) throws IOException {
+    return Executor.newInstance().execute(Request.Get(url.toString())).handleResponse(response -> {
+      PageInfo pageInfo = new PageInfo(url);
+      String body = EntityUtils.toString(response.getEntity());
+      return pageInfo;
+    });
+  }
 
-    public PageInfo getPageInfo() {
-        return pageInfo;
-    }
+  public PageInfo getPageInfo() {
+    return pageInfo;
+  }
 }

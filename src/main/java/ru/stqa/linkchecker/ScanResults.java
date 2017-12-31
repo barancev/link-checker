@@ -22,13 +22,13 @@ import java.util.Map;
 
 public class ScanResults {
 
-    private Map<URL, PageInfo> pages = new HashMap<>();
+  private Map<URL, PageInfo> pages = new HashMap<>();
 
-    public void addPageInfo(PageInfo pageInfo) {
-        pages.put(pageInfo.getUrl(), pageInfo);
-    }
+  public void addPageInfo(PageInfo pageInfo) {
+    pages.put(pageInfo.getUrl(), pageInfo);
+  }
 
-    public PageInfo getPageInfo(URL url) {
-        return pages.get(url);
-    }
+  public PageInfo getPageInfo(URL url) {
+    return pages.get(url);
+  }
 }

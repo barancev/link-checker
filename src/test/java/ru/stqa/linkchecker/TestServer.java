@@ -28,38 +28,38 @@ import java.net.URL;
 
 public class TestServer {
 
-    private static TestServer singleton;
+  private static TestServer singleton;
 
-    private Server jetty;
+  private Server jetty;
 
-    private TestServer() {
-        jetty = new Server(0);
-        ResourceHandler handler = new ResourceHandler();
-        handler.setDirectoriesListed(true);
-        handler.setResourceBase("src/test/resources/web");
-        HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[] { handler, new DefaultHandler() });
-        jetty.setHandler(handlers);
-        try {
-            jetty.start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+  private TestServer() {
+    jetty = new Server(0);
+    ResourceHandler handler = new ResourceHandler();
+    handler.setDirectoriesListed(true);
+    handler.setResourceBase("src/test/resources/web");
+    HandlerList handlers = new HandlerList();
+    handlers.setHandlers(new Handler[]{handler, new DefaultHandler()});
+    jetty.setHandler(handlers);
+    try {
+      jetty.start();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    public static TestServer getInstance() {
-        if (singleton == null) {
-            singleton = new TestServer();
-        }
-        return singleton;
+  public static TestServer getInstance() {
+    if (singleton == null) {
+      singleton = new TestServer();
     }
+    return singleton;
+  }
 
-    public URL getStartPage() {
-        int port = ((ServerConnector) jetty.getConnectors()[0]).getLocalPort();
-        try {
-            return new URL(String.format("http://127.0.0.1:%s/", port));
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+  public URL getStartPage() {
+    int port = ((ServerConnector) jetty.getConnectors()[0]).getLocalPort();
+    try {
+      return new URL(String.format("http://127.0.0.1:%s/", port));
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
     }
+  }
 }

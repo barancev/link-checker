@@ -23,17 +23,17 @@ import java.net.URL;
 
 public class ScanSessionTest {
 
-    @Test
-    void emptyScanSessionStops(TestServer testServer) throws InterruptedException {
-        URL startPage = testServer.getStartPage();
-        ScanSettings settings = new ScanSettings(startPage, 10);
-        ScanSession session = new ScanSession(settings);
+  @Test
+  void emptyScanSessionStops(TestServer testServer) throws InterruptedException {
+    URL startPage = testServer.getStartPage();
+    ScanSettings settings = new ScanSettings(startPage, 10);
+    ScanSession session = new ScanSession(settings);
 
-        Thread t = new Thread(session);
-        t.start();
-        t.join();
+    Thread t = new Thread(session);
+    t.start();
+    t.join();
 
-        PageInfo pageInfo = session.getResults().getPageInfo(startPage);
-        Assertions.assertEquals(startPage, pageInfo.getUrl());
-    }
+    PageInfo pageInfo = session.getResults().getPageInfo(startPage);
+    Assertions.assertEquals(startPage, pageInfo.getUrl());
+  }
 }
