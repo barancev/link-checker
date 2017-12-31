@@ -16,11 +16,24 @@
 
 package ru.stqa.linkchecker;
 
+import java.io.IOException;
 import java.net.URL;
 
+import org.apache.http.StatusLine;
+import org.apache.http.client.fluent.Executor;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.client.fluent.Response;
+
 public class DefaultUrlHandler implements UrlHandler {
+
     @Override
     public PageInfo handle(URL url) {
+        try {
+            Response response = Executor.newInstance().execute(Request.Get(url.toString()));
+            StatusLine status = response.returnResponse().getStatusLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return new PageInfo(url);
     }
 }

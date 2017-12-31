@@ -25,8 +25,8 @@ import java.net.URL;
 public class ScanSessionTest {
 
     @Test
-    void emptyScanSessionStops() throws MalformedURLException, InterruptedException {
-        URL startPage = new URL("http://locahost/");
+    void emptyScanSessionStops(@BaseUrl String url) throws MalformedURLException, InterruptedException {
+        URL startPage = new URL(url);
         ScanSettings settings = new ScanSettings(startPage, 10);
         ScanSession session = new ScanSession(settings);
 

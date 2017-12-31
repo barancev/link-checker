@@ -15,6 +15,15 @@ repositories {
 }
 
 dependencies {
+    compile 'org.apache.httpcomponents:httpclient:4.5.4'
+    compile 'org.apache.httpcomponents:fluent-hc:4.5.4'
     testCompile 'org.junit.jupiter:junit-jupiter-api:5.0.1'
+    testCompile 'org.eclipse.jetty:jetty-server:9.4.8.v20171121'
     testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.0.1'
+}
+
+junitPlatform {
+    configurationParameters([
+            'junit.jupiter.extensions.autodetection.enabled': 'true',
+    ])
 }
