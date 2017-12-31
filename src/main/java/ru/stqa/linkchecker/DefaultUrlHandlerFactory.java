@@ -16,26 +16,9 @@
 
 package ru.stqa.linkchecker;
 
-import java.net.URL;
-
-public class ScanWorker implements Runnable {
-
-    private ScanSession session;
-    private URL url;
-    private PageInfo pageInfo;
-
-    public ScanWorker(ScanSession session, URL url) {
-        this.session = session;
-        this.url = url;
-    }
-
+public class DefaultUrlHandlerFactory implements UrlHandlerFactory {
     @Override
-    public void run() {
-        pageInfo = session.getUrlHandlerFactory().getUrlHandler().handle(url);
-        session.done(this);
-    }
-
-    public PageInfo getPageInfo() {
-        return pageInfo;
+    public UrlHandler getUrlHandler() {
+        return new DefaultUrlHandler();
     }
 }

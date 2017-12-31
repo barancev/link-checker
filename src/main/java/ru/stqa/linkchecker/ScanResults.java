@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Alexei Barantsev
+ * Copyright 2017 Alexei Barantsev
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,18 @@
 package ru.stqa.linkchecker;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ScanWorker implements Runnable {
+public class ScanResults {
 
-    private ScanSession session;
-    private URL url;
-    private PageInfo pageInfo;
+    private Map<URL, PageInfo> pages = new HashMap<>();
 
-    public ScanWorker(ScanSession session, URL url) {
-        this.session = session;
-        this.url = url;
+    public void addPageInfo(PageInfo pageInfo) {
+        pages.put(pageInfo.getUrl(), pageInfo);
     }
 
-    @Override
-    public void run() {
-        pageInfo = session.getUrlHandlerFactory().getUrlHandler().handle(url);
-        session.done(this);
-    }
-
-    public PageInfo getPageInfo() {
-        return pageInfo;
+    public PageInfo getPageInfo(URL url) {
+        return pages.get(url);
     }
 }

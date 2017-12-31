@@ -26,8 +26,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ScanSession implements Runnable {
 
     private ScanSettings settings;
+    private ScanResults results = new ScanResults();
     private AtomicInteger workerCounter = new AtomicInteger();
     private ConcurrentLinkedQueue<URL> urlQueue = new ConcurrentLinkedQueue<>();
+
+    private UrlHandlerFactory urlHandlerFactory = new DefaultUrlHandlerFactory();
 
     public ScanSession(ScanSettings settings) {
         this.settings = settings;
@@ -50,7 +53,16 @@ public class ScanSession implements Runnable {
     }
 
     public void done(ScanWorker worker) {
-        System.out.println("stop worker for " + worker.getUrl());
+        System.out.println("stop worker for " + worker.getPageInfo().getUrl());
+        results.addPageInfo(worker.getPageInfo());
         workerCounter.decrementAndGet();
+    }
+
+    public UrlHandlerFactory getUrlHandlerFactory() {
+        return urlHandlerFactory;
+    }
+
+    public ScanResults getResults() {
+        return results;
     }
 }
