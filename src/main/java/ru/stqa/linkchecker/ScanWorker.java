@@ -16,16 +16,20 @@
 
 package ru.stqa.linkchecker;
 
+import org.apache.http.client.fluent.Executor;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.util.EntityUtils;
+
 import java.io.IOException;
 import java.net.URL;
 
-public class ScanWorker implements Runnable {
+class ScanWorker implements Runnable {
 
     private ScanSession session;
     private URL url;
     private PageInfo pageInfo;
 
-    public ScanWorker(ScanSession session, URL url) {
+    ScanWorker(ScanSession session, URL url) {
         this.session = session;
         this.url = url;
     }
@@ -33,11 +37,19 @@ public class ScanWorker implements Runnable {
     @Override
     public void run() {
         try {
-            pageInfo = session.getUrlHandlerFactory().getUrlHandler().handle(url);
+            pageInfo =  handle(url);
         } catch (IOException e) {
             e.printStackTrace();
         }
         session.done(this);
+    }
+
+    private PageInfo handle(URL url) throws IOException {
+        return Executor.newInstance().execute(Request.Get(url.toString())).handleResponse(response -> {
+            PageInfo pageInfo = new PageInfo(url);
+            String body = EntityUtils.toString(response.getEntity());
+            return pageInfo;
+        });
     }
 
     public PageInfo getPageInfo() {
