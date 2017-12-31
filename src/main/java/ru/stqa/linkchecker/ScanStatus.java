@@ -16,23 +16,6 @@
 
 package ru.stqa.linkchecker;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-public class ScanResults {
-
-  private Map<String, PageInfo> pages = new ConcurrentHashMap<>();
-
-  public void addPageInfo(PageInfo pageInfo) {
-    pages.put(pageInfo.getUrl(), pageInfo);
-  }
-
-  public PageInfo getPageInfo(String url) {
-    return pages.get(url);
-  }
-
-  public Set<String> getScannedUrls() {
-    return pages.keySet();
-  }
+public enum ScanStatus {
+  IN_PROGRESS, BROKEN, DONE
 }

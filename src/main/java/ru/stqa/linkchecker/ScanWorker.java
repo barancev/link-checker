@@ -16,20 +16,25 @@
 
 package ru.stqa.linkchecker;
 
+import org.apache.http.Header;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.util.EntityUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 class ScanWorker implements Runnable {
 
   private ScanSession session;
-  private URL url;
+  private String url;
   private PageInfo pageInfo;
 
-  ScanWorker(ScanSession session, URL url) {
+  ScanWorker(ScanSession session, String url) {
     this.session = session;
     this.url = url;
   }
@@ -39,17 +44,37 @@ class ScanWorker implements Runnable {
     try {
       pageInfo = handle(url);
     } catch (IOException e) {
-      e.printStackTrace();
+      pageInfo = PageInfo.broken(url).build();
     }
     session.done(this);
   }
 
-  private PageInfo handle(URL url) throws IOException {
-    return Executor.newInstance().execute(Request.Get(url.toString())).handleResponse(response -> {
-      PageInfo pageInfo = new PageInfo(url);
-      String body = EntityUtils.toString(response.getEntity());
-      return pageInfo;
+  private PageInfo handle(String url) throws IOException {
+    return Executor.newInstance().execute(Request.Get(url)).handleResponse(response -> {
+      Header[] headers = response.getHeaders("Content-Type");
+      if (headers.length == 0) {
+        return PageInfo.broken(url).message("No Content-Type header").build();
+      }
+      if (headers.length > 1) {
+        return PageInfo.broken(url).message("Multiple Content-Type headers").build();
+      }
+      String contentType = headers[0].getValue();
+      if (contentType.startsWith("text/")) {
+        return PageInfo.done(url)
+          .links(getLinks(EntityUtils.toString(response.getEntity()), url)).build();
+      }
+      return PageInfo.broken(url)
+        .message(String.format("Unrecognized Content-Type: %s", contentType)).build();
     });
+  }
+
+  private Set<String> getLinks(String text, String baseUrl) {
+    Document doc = Jsoup.parse(text, baseUrl);
+    Set<String> result = new HashSet<>();
+    for (Element a : doc.select("a")) {
+      result.add(a.attr("abs:href"));
+    }
+    return result;
   }
 
   public PageInfo getPageInfo() {

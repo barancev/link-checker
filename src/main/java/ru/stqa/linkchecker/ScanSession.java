@@ -16,7 +16,6 @@
 
 package ru.stqa.linkchecker;
 
-import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -28,7 +27,7 @@ public class ScanSession implements Runnable {
   private ScanSettings settings;
   private ScanResults results = new ScanResults();
   private AtomicInteger workerCounter = new AtomicInteger();
-  private ConcurrentLinkedQueue<URL> urlQueue = new ConcurrentLinkedQueue<>();
+  private ConcurrentLinkedQueue<String> urlQueue = new ConcurrentLinkedQueue<>();
 
   public ScanSession(ScanSettings settings) {
     this.settings = settings;
@@ -42,16 +41,18 @@ public class ScanSession implements Runnable {
 
     while (workerCounter.intValue() > 0 || urlQueue.size() > 0) {
       Optional.ofNullable(urlQueue.poll()).ifPresent(url -> {
-        System.out.println("start worker for " + url);
-        service.submit(new ScanWorker(this, url));
-        workerCounter.incrementAndGet();
+        if (results.getPageInfo(url) == null) {
+          results.addPageInfo(PageInfo.inProgress(url).build());
+          service.submit(new ScanWorker(this, url));
+          workerCounter.incrementAndGet();
+        }
       });
       Thread.yield();
     }
   }
 
   public void done(ScanWorker worker) {
-    System.out.println("stop worker for " + worker.getPageInfo().getUrl());
+    urlQueue.addAll(worker.getPageInfo().getLinks());
     results.addPageInfo(worker.getPageInfo());
     workerCounter.decrementAndGet();
   }

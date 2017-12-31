@@ -30,10 +30,10 @@ public class TestServer {
 
   private static TestServer singleton;
 
-  private Server jetty;
+  private int port;
 
   private TestServer() {
-    jetty = new Server(0);
+    Server jetty = new Server(0);
     ResourceHandler handler = new ResourceHandler();
     handler.setDirectoriesListed(true);
     handler.setResourceBase("src/test/resources/web");
@@ -42,6 +42,7 @@ public class TestServer {
     jetty.setHandler(handlers);
     try {
       jetty.start();
+      port = ((ServerConnector) jetty.getConnectors()[0]).getLocalPort();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -54,10 +55,9 @@ public class TestServer {
     return singleton;
   }
 
-  public URL getStartPage() {
-    int port = ((ServerConnector) jetty.getConnectors()[0]).getLocalPort();
+  public String page(String page) {
     try {
-      return new URL(String.format("http://127.0.0.1:%s/", port));
+      return new URL(new URL(String.format("http://127.0.0.1:%s", port)), page).toString();
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }

@@ -16,17 +16,72 @@
 
 package ru.stqa.linkchecker;
 
-import java.net.URL;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import static ru.stqa.linkchecker.ScanStatus.BROKEN;
+import static ru.stqa.linkchecker.ScanStatus.DONE;
+import static ru.stqa.linkchecker.ScanStatus.IN_PROGRESS;
 
 public class PageInfo {
 
-  private URL url;
+  private String url;
+  private ScanStatus status;
+  private String message = "";
+  private Set<String> links = new HashSet<>();
 
-  public PageInfo(URL url) {
+  private PageInfo(String url, ScanStatus status) {
     this.url = url;
+    this.status = status;
   }
 
-  public URL getUrl() {
+  public static Builder inProgress(String url) {
+    return new PageInfo(url, IN_PROGRESS).newBuilder();
+  }
+
+  public static Builder broken(String url) {
+    return new PageInfo(url, BROKEN).newBuilder();
+  }
+
+  public static Builder done(String url) {
+    return new PageInfo(url, DONE).newBuilder();
+  }
+
+  private Builder newBuilder() {
+    return new Builder();
+  }
+
+  public class Builder {
+
+    public Builder message(String message) {
+      PageInfo.this.message = message;
+      return this;
+    }
+
+    public Builder links(Set<String> links) {
+      PageInfo.this.links = Collections.unmodifiableSet(new HashSet<>(links));
+      return this;
+    }
+
+    public PageInfo build() {
+      return PageInfo.this;
+    }
+  }
+
+  public String getUrl() {
     return url;
+  }
+
+  public ScanStatus getStatus() {
+    return status;
+  }
+
+  public String getMessage() {
+    return message;
+  }
+
+  public Set<String> getLinks() {
+    return links;
   }
 }

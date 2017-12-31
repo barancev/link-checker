@@ -16,19 +16,17 @@
 
 package ru.stqa.linkchecker;
 
-import java.net.URL;
-
 public class ScanSettings {
 
-  private URL startUrl;
+  private String startUrl;
   private int threadCount;
 
-  public ScanSettings(URL startUrl, int threadCount) {
+  public ScanSettings(String startUrl, int threadCount) {
     this.startUrl = startUrl;
     this.threadCount = threadCount;
   }
 
-  public URL getStartUrl() {
+  public String getStartUrl() {
     return startUrl;
   }
 
