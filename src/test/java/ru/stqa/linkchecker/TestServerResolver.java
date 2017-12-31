@@ -16,33 +16,20 @@
 
 package ru.stqa.linkchecker;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
-public class BaseUrlResolver implements ParameterResolver {
-
-    private static Server jettySingleton;
+public class TestServerResolver implements ParameterResolver {
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return parameterContext.getParameter().getAnnotation(BaseUrl.class) != null;
+        return parameterContext.getParameter().getType().equals(TestServer.class);
     }
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        if (jettySingleton == null) {
-            jettySingleton = new Server(0);
-            try {
-                jettySingleton.start();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-        ServerConnector connector = (ServerConnector) jettySingleton.getConnectors()[0];
-        return String.format("http://127.0.0.1:%s/", connector.getLocalPort());
+        return TestServer.getInstance();
     }
 }

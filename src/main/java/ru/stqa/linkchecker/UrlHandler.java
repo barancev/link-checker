@@ -16,8 +16,9 @@
 
 package ru.stqa.linkchecker;
 
+import java.io.IOException;
 import java.net.URL;
 
 public interface UrlHandler {
-    PageInfo handle(URL url);
+    PageInfo handle(URL url) throws IOException;
 }

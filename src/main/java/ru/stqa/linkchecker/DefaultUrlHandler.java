@@ -19,21 +19,18 @@ package ru.stqa.linkchecker;
 import java.io.IOException;
 import java.net.URL;
 
-import org.apache.http.StatusLine;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
-import org.apache.http.client.fluent.Response;
+import org.apache.http.util.EntityUtils;
 
 public class DefaultUrlHandler implements UrlHandler {
 
     @Override
-    public PageInfo handle(URL url) {
-        try {
-            Response response = Executor.newInstance().execute(Request.Get(url.toString()));
-            StatusLine status = response.returnResponse().getStatusLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new PageInfo(url);
+    public PageInfo handle(URL url) throws IOException {
+        return Executor.newInstance().execute(Request.Get(url.toString())).handleResponse(response -> {
+            PageInfo pageInfo = new PageInfo(url);
+            String body = EntityUtils.toString(response.getEntity());
+            return pageInfo;
+        });
     }
 }

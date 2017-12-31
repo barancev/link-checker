@@ -16,6 +16,7 @@
 
 package ru.stqa.linkchecker;
 
+import java.io.IOException;
 import java.net.URL;
 
 public class ScanWorker implements Runnable {
@@ -31,7 +32,11 @@ public class ScanWorker implements Runnable {
 
     @Override
     public void run() {
-        pageInfo = session.getUrlHandlerFactory().getUrlHandler().handle(url);
+        try {
+            pageInfo = session.getUrlHandlerFactory().getUrlHandler().handle(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         session.done(this);
     }
 
