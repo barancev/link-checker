@@ -18,12 +18,15 @@ package ru.stqa.linkchecker;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 public class ScanSession implements Runnable {
 
@@ -31,9 +34,14 @@ public class ScanSession implements Runnable {
   private ScanResults results = new ScanResults();
   private AtomicInteger workerCounter = new AtomicInteger();
   private ConcurrentLinkedQueue<String> urlQueue = new ConcurrentLinkedQueue<>();
+  private List<Consumer<PageInfo>> listeners = new ArrayList<>();
 
   public ScanSession(ScanSettings settings) {
     this.settings = settings;
+  }
+
+  public void addListener(Consumer<PageInfo> listener) {
+    listeners.add(listener);
   }
 
   @Override
@@ -65,6 +73,7 @@ public class ScanSession implements Runnable {
     urlQueue.addAll(worker.getPageInfo().getLinks());
     results.addPageInfo(worker.getPageInfo());
     workerCounter.decrementAndGet();
+    listeners.forEach(l -> l.accept(worker.getPageInfo()));
   }
 
   public ScanResults getResults() {
