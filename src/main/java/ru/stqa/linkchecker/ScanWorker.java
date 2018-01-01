@@ -17,8 +17,12 @@
 package ru.stqa.linkchecker;
 
 import org.apache.http.Header;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -52,7 +56,10 @@ class ScanWorker implements Runnable {
   }
 
   private PageInfo handle(String url) throws IOException {
-    return Executor.newInstance().execute(Request.Get(url)).handleResponse(response -> {
+    HttpClient httpClient = HttpClients.custom()
+      .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build())
+      .build();
+    return Executor.newInstance(httpClient).execute(Request.Get(url)).handleResponse(response -> {
       if (scanLinks) {
         Header[] headers = response.getHeaders("Content-Type");
         if (headers.length == 0) {
