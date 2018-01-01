@@ -16,6 +16,7 @@
 
 package ru.stqa.linkchecker;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,5 +35,9 @@ public class ScanResults {
 
   public Set<String> getScannedUrls() {
     return pages.keySet();
+  }
+
+  public Collection<PageInfo> getScannedPages() {
+    return pages.values();
   }
 }

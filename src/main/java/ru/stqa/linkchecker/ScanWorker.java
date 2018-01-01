@@ -17,11 +17,11 @@
 package ru.stqa.linkchecker;
 
 import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.fluent.Executor;
-import org.apache.http.client.fluent.Request;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -50,7 +50,7 @@ class ScanWorker implements Runnable {
     try {
       pageInfo = handle(url);
     } catch (IOException e) {
-      pageInfo = PageInfo.broken(url).build();
+      pageInfo = PageInfo.broken(url).message(e.getMessage()).build();
     }
     session.done(this);
   }
@@ -59,27 +59,32 @@ class ScanWorker implements Runnable {
     HttpClient httpClient = HttpClients.custom()
       .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build())
       .build();
-    return Executor.newInstance(httpClient).execute(Request.Get(url)).handleResponse(response -> {
-      if (scanLinks) {
-        Header[] headers = response.getHeaders("Content-Type");
-        if (headers.length == 0) {
-          return PageInfo.broken(url).message("No Content-Type header").build();
-        }
-        if (headers.length > 1) {
-          return PageInfo.broken(url).message("Multiple Content-Type headers").build();
-        }
-        String contentType = headers[0].getValue();
-        if (contentType.startsWith("text/")) {
-          return PageInfo.done(url)
-            .links(getLinks(EntityUtils.toString(response.getEntity()), url)).build();
-        }
-        return PageInfo.broken(url)
-          .message(String.format("Unrecognized Content-Type: %s", contentType)).build();
+    HttpResponse response = httpClient.execute(new HttpGet(url));
 
-      } else {
-        return PageInfo.done(url).build();
+    if (scanLinks) {
+      Header[] headers = response.getHeaders("Content-Type");
+      if (headers.length == 0) {
+        return PageInfo.broken(url).message("No Content-Type header").build();
       }
-    });
+      if (headers.length > 1) {
+        return PageInfo.broken(url).message("Multiple Content-Type headers").build();
+      }
+      String contentType = headers[0].getValue();
+      if (contentType.startsWith("text/")) {
+        return PageInfo.done(url)
+          .httpStatus(response.getStatusLine().getStatusCode())
+          .contentType(contentType)
+          .links(getLinks(EntityUtils.toString(response.getEntity()), url))
+          .build();
+      }
+      return PageInfo.done(url)
+        .httpStatus(response.getStatusLine().getStatusCode())
+        .contentType(contentType)
+        .build();
+
+    } else {
+      return PageInfo.done(url).httpStatus(response.getStatusLine().getStatusCode()).build();
+    }
   }
 
   private Set<String> getLinks(String text, String baseUrl) {

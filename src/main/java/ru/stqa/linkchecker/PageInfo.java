@@ -29,6 +29,9 @@ public class PageInfo {
   private String url;
   private ScanStatus status;
   private String message = "";
+
+  private int httpStatus;
+  private String contentType;
   private Set<String> links = new HashSet<>();
 
   private PageInfo(String url, ScanStatus status) {
@@ -52,10 +55,28 @@ public class PageInfo {
     return new Builder();
   }
 
+  public int getHttpStatus() {
+    return httpStatus;
+  }
+
+  public String getContentType() {
+    return contentType;
+  }
+
   public class Builder {
 
     public Builder message(String message) {
       PageInfo.this.message = message;
+      return this;
+    }
+
+    public Builder httpStatus(int httpStatus) {
+      PageInfo.this.httpStatus = httpStatus;
+      return this;
+    }
+
+    public Builder contentType(String contentType) {
+      PageInfo.this.contentType = contentType;
       return this;
     }
 

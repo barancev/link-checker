@@ -39,6 +39,9 @@ public class Main {
     t.start();
     t.join();
 
-    session.getResults().getScannedUrls().forEach(System.out::println);
+    session.getResults().getScannedPages().forEach(pageInfo ->
+      System.out.println(String.format("%s %s %s",
+        pageInfo.getHttpStatus(), pageInfo.getUrl(), pageInfo.getMessage()))
+    );
   }
 }
