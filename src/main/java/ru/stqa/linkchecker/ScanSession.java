@@ -57,6 +57,8 @@ public class ScanSession implements Runnable {
       });
       Thread.yield();
     }
+
+    service.shutdown();
   }
 
   public void done(ScanWorker worker) {

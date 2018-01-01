@@ -52,6 +52,7 @@ class ScanWorker implements Runnable {
   }
 
   private PageInfo handle(String url) throws IOException {
+    System.out.println("scanning " + url);
     return Executor.newInstance().execute(Request.Get(url)).handleResponse(response -> {
       if (scanLinks) {
         Header[] headers = response.getHeaders("Content-Type");
