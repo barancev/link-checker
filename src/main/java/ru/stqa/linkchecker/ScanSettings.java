@@ -16,18 +16,27 @@
 
 package ru.stqa.linkchecker;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class ScanSettings {
 
   private String startUrl;
+  private String startUrlHost;
   private int threadCount;
 
-  public ScanSettings(String startUrl, int threadCount) {
+  public ScanSettings(String startUrl, int threadCount) throws MalformedURLException {
     this.startUrl = startUrl;
+    this.startUrlHost = new URL(startUrl).getHost();
     this.threadCount = threadCount;
   }
 
   public String getStartUrl() {
     return startUrl;
+  }
+
+  public String getStartUrlHost() {
+    return startUrlHost;
   }
 
   public int getThreadCount() {

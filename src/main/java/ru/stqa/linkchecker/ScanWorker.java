@@ -32,11 +32,13 @@ class ScanWorker implements Runnable {
 
   private ScanSession session;
   private String url;
+  private boolean scanLinks;
   private PageInfo pageInfo;
 
-  ScanWorker(ScanSession session, String url) {
+  ScanWorker(ScanSession session, String url, boolean scanLinks) {
     this.session = session;
     this.url = url;
+    this.scanLinks = scanLinks;
   }
 
   @Override
@@ -51,20 +53,25 @@ class ScanWorker implements Runnable {
 
   private PageInfo handle(String url) throws IOException {
     return Executor.newInstance().execute(Request.Get(url)).handleResponse(response -> {
-      Header[] headers = response.getHeaders("Content-Type");
-      if (headers.length == 0) {
-        return PageInfo.broken(url).message("No Content-Type header").build();
+      if (scanLinks) {
+        Header[] headers = response.getHeaders("Content-Type");
+        if (headers.length == 0) {
+          return PageInfo.broken(url).message("No Content-Type header").build();
+        }
+        if (headers.length > 1) {
+          return PageInfo.broken(url).message("Multiple Content-Type headers").build();
+        }
+        String contentType = headers[0].getValue();
+        if (contentType.startsWith("text/")) {
+          return PageInfo.done(url)
+            .links(getLinks(EntityUtils.toString(response.getEntity()), url)).build();
+        }
+        return PageInfo.broken(url)
+          .message(String.format("Unrecognized Content-Type: %s", contentType)).build();
+
+      } else {
+        return PageInfo.done(url).build();
       }
-      if (headers.length > 1) {
-        return PageInfo.broken(url).message("Multiple Content-Type headers").build();
-      }
-      String contentType = headers[0].getValue();
-      if (contentType.startsWith("text/")) {
-        return PageInfo.done(url)
-          .links(getLinks(EntityUtils.toString(response.getEntity()), url)).build();
-      }
-      return PageInfo.broken(url)
-        .message(String.format("Unrecognized Content-Type: %s", contentType)).build();
     });
   }
 

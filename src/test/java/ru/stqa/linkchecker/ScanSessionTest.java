@@ -19,6 +19,8 @@ package ru.stqa.linkchecker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.net.MalformedURLException;
+
 class ScanSessionTest {
 
   private TestServer testServer;
@@ -28,7 +30,12 @@ class ScanSessionTest {
   }
 
   private ScanResults scan(String startPage) {
-    ScanSettings settings = new ScanSettings(startPage, 10);
+    ScanSettings settings = null;
+    try {
+      settings = new ScanSettings(startPage, 10);
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
     ScanSession session = new ScanSession(settings);
 
     Thread t = new Thread(session);

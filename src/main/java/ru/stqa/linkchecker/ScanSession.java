@@ -16,6 +16,9 @@
 
 package ru.stqa.linkchecker;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -43,7 +46,12 @@ public class ScanSession implements Runnable {
       Optional.ofNullable(urlQueue.poll()).ifPresent(url -> {
         if (results.getPageInfo(url) == null) {
           results.addPageInfo(PageInfo.inProgress(url).build());
-          service.submit(new ScanWorker(this, url));
+          boolean scanLinks = false;
+          try {
+            scanLinks = Objects.equals(new URL(url).getHost(), settings.getStartUrlHost());
+          } catch (MalformedURLException ignore) {
+          }
+          service.submit(new ScanWorker(this, url, scanLinks));
           workerCounter.incrementAndGet();
         }
       });
