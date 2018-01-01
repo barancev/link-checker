@@ -25,6 +25,9 @@ public class Main {
     @Parameter(names = "-target", arity = 1, required = true)
     String target;
 
+    @Parameter(names = "-report", arity = 1)
+    String report = "report.html";
+
     @Parameter(names = "-threads", arity = 1)
     int threadCount = 10;
   }
@@ -39,9 +42,6 @@ public class Main {
     t.start();
     t.join();
 
-    session.getResults().getScannedPages().forEach(pageInfo ->
-      System.out.println(String.format("%s %s %s",
-        pageInfo.getHttpStatus(), pageInfo.getUrl(), pageInfo.getMessage()))
-    );
+    new ScanReport(session.getResults()).saveTo(options.report);
   }
 }
