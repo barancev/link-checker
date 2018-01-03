@@ -54,7 +54,7 @@ class ScanSessionTest {
     String startPage = testServer.page("simple_page.html");
     ScanResults results = scan(startPage);
 
-    Assertions.assertEquals(1, results.getScannedUrls().size());
+    Assertions.assertEquals(1, results.getScannedPages().size());
 
     PageInfo pageInfo = results.getPageInfo(startPage);
     Assertions.assertEquals(startPage, pageInfo.getUrl());
@@ -63,43 +63,43 @@ class ScanSessionTest {
   @Test
   void canScanPageWithALink() {
     ScanResults results = scan(testServer.page("single_link_page.html"));
-    Assertions.assertEquals(2, results.getScannedUrls().size());
+    Assertions.assertEquals(2, results.getScannedPages().size());
   }
 
   @Test
   void canScanPageWithMultipleLinks() {
     ScanResults results = scan(testServer.page("multi_link_page.html"));
-    Assertions.assertEquals(3, results.getScannedUrls().size());
+    Assertions.assertEquals(3, results.getScannedPages().size());
   }
 
   @Test
   void canScanPageWithDuplicatedLinks() {
     ScanResults results = scan(testServer.page("duplicated_link_page.html"));
-    Assertions.assertEquals(2, results.getScannedUrls().size());
+    Assertions.assertEquals(2, results.getScannedPages().size());
   }
 
   @Test
   void canScanPageWithSelfReferencingLinks() {
     ScanResults results = scan(testServer.page("self_link_page.html"));
-    Assertions.assertEquals(1, results.getScannedUrls().size());
+    Assertions.assertEquals(1, results.getScannedPages().size());
   }
 
   @Test
   void canScanPageWithDuplicatedSelfReferencingLinks() {
     ScanResults results = scan(testServer.page("duplicated_self_link_page.html"));
-    Assertions.assertEquals(1, results.getScannedUrls().size());
+    Assertions.assertEquals(1, results.getScannedPages().size());
   }
 
   @Test
   void canScanMutuallyReferencingPages() {
     ScanResults results = scan(testServer.page("mutual_link_page1.html"));
-    Assertions.assertEquals(2, results.getScannedUrls().size());
+    Assertions.assertEquals(2, results.getScannedPages().size());
   }
 
   @Test
   void canScanPagesWithLoopReferences() {
     ScanResults results = scan(testServer.page("loop_link_page1.html"));
-    Assertions.assertEquals(3, results.getScannedUrls().size());
+    Assertions.assertEquals(3, results.getScannedPages().size());
   }
 
 }
