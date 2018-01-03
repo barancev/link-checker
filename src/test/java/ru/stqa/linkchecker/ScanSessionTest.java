@@ -16,10 +16,11 @@
 
 package ru.stqa.linkchecker;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ScanSessionTest {
 
@@ -54,52 +55,59 @@ class ScanSessionTest {
     String startPage = testServer.page("simple_page.html");
     ScanResults results = scan(startPage);
 
-    Assertions.assertEquals(1, results.getScannedPages().size());
+    assertEquals(1, results.getScannedPages().size());
 
     PageInfo pageInfo = results.getPageInfo(startPage);
-    Assertions.assertEquals(startPage, pageInfo.getUrl());
+    assertEquals(startPage, pageInfo.getUrl());
   }
 
   @Test
   void canScanPageWithALink() {
     ScanResults results = scan(testServer.page("single_link_page.html"));
-    Assertions.assertEquals(2, results.getScannedPages().size());
+    assertEquals(2, results.getScannedPages().size());
   }
 
   @Test
   void canScanPageWithMultipleLinks() {
     ScanResults results = scan(testServer.page("multi_link_page.html"));
-    Assertions.assertEquals(3, results.getScannedPages().size());
+    assertEquals(3, results.getScannedPages().size());
   }
 
   @Test
   void canScanPageWithDuplicatedLinks() {
     ScanResults results = scan(testServer.page("duplicated_link_page.html"));
-    Assertions.assertEquals(2, results.getScannedPages().size());
+    assertEquals(2, results.getScannedPages().size());
   }
 
   @Test
   void canScanPageWithSelfReferencingLinks() {
     ScanResults results = scan(testServer.page("self_link_page.html"));
-    Assertions.assertEquals(1, results.getScannedPages().size());
+    assertEquals(1, results.getScannedPages().size());
   }
 
   @Test
   void canScanPageWithDuplicatedSelfReferencingLinks() {
     ScanResults results = scan(testServer.page("duplicated_self_link_page.html"));
-    Assertions.assertEquals(1, results.getScannedPages().size());
+    assertEquals(1, results.getScannedPages().size());
   }
 
   @Test
   void canScanMutuallyReferencingPages() {
     ScanResults results = scan(testServer.page("mutual_link_page1.html"));
-    Assertions.assertEquals(2, results.getScannedPages().size());
+    assertEquals(2, results.getScannedPages().size());
   }
 
   @Test
   void canScanPagesWithLoopReferences() {
     ScanResults results = scan(testServer.page("loop_link_page1.html"));
-    Assertions.assertEquals(3, results.getScannedPages().size());
+    assertEquals(3, results.getScannedPages().size());
+  }
+
+  @Test
+  void canDetectBrokenLinks() {
+    ScanResults results = scan(testServer.page("broken_link_page.html"));
+    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
   }
 
 }
