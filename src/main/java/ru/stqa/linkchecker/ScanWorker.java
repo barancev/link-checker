@@ -93,6 +93,9 @@ class ScanWorker implements Runnable {
     for (Element a : doc.select("a")) {
       result.add(a.attr("abs:href"));
     }
+    for (Element a : doc.select("img")) {
+      result.add(a.attr("abs:src"));
+    }
     return result;
   }
 

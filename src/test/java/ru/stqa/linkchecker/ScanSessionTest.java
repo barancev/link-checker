@@ -110,4 +110,17 @@ class ScanSessionTest {
     assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
   }
 
+  @Test
+  void canDetectImageLinks() {
+    ScanResults results = scan(testServer.page("page_with_image.html"));
+    assertEquals(2, results.getScannedPages().size()); // jetty adds an extra link
+  }
+
+  @Test
+  void canDetectBrokenImageLinks() {
+    ScanResults results = scan(testServer.page("page_with_broken_image.html"));
+    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
 }
