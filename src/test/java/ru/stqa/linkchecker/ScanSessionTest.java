@@ -189,6 +189,19 @@ class ScanSessionTest {
   }
 
   @Test
+  void canDetectAudioSourceLinks() {
+    ScanResults results = scan(testServer.page("page_with_audio2.html"));
+    assertEquals(2, results.getScannedPages().size());
+  }
+
+  @Test
+  void canDetectBrokenAudioSourceLinks() {
+    ScanResults results = scan(testServer.page("page_with_broken_audio2.html"));
+    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
+  @Test
   void canDetectEmbedLinks() {
     ScanResults results = scan(testServer.page("page_with_embed.html"));
     assertEquals(2, results.getScannedPages().size());
@@ -221,10 +234,23 @@ class ScanSessionTest {
   }
 
   @Test
-  void canDetectBrokenVidePosterLinks() {
+  void canDetectBrokenVideoPosterLinks() {
     ScanResults results = scan(testServer.page("page_with_broken_video_poster.html"));
     assertEquals(4, results.getScannedPages().size()); // jetty adds an extra link
     assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
+  @Test
+  void canDetectVideoSourceLinks() {
+    ScanResults results = scan(testServer.page("page_with_video2.html"));
+    assertEquals(2, results.getScannedPages().size());
+  }
+
+  @Test
+  void canDetectBrokenVideoSourceLinks() {
+    ScanResults results = scan(testServer.page("page_with_broken_video2.html"));
+    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
   }
 
 }
