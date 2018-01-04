@@ -266,4 +266,17 @@ class ScanSessionTest {
     assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
   }
 
+  @Test
+  void canDetectScriptLinks() {
+    ScanResults results = scan(testServer.page("page_with_simple_script.html"));
+    assertEquals(2, results.getScannedPages().size());
+  }
+
+  @Test
+  void canDetectBrokenScriptLinks() {
+    ScanResults results = scan(testServer.page("page_with_missing_script.html"));
+    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
 }
