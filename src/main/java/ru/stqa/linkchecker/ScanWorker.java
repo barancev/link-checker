@@ -94,18 +94,16 @@ class ScanWorker implements Runnable {
     for (Element e : doc.select("a, area")) {
       addLink(result, e, "abs:href");
     }
-    for (Element e : doc.select("img, iframe, audio, embed")) {
+    for (Element e : doc.select("img, iframe, audio, embed, video, source, track")) {
       addLink(result, e, "abs:src");
     }
     for (Element e : doc.select("video")) {
-      addLink(result, e, "abs:src");
       addLink(result, e, "abs:poster");
     }
     for (Element e : doc.select("object")) {
       addLink(result, e, "abs:data");
     }
     for (Element e : doc.select("source")) {
-      addLink(result, e, "abs:src");
       addLink(result, e, "abs:srcset");
     }
     return result;
