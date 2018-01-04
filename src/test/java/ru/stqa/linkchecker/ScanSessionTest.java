@@ -201,4 +201,17 @@ class ScanSessionTest {
     assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
   }
 
+  @Test
+  void canDetectVideoLinks() {
+    ScanResults results = scan(testServer.page("page_with_video.html"));
+    assertEquals(2, results.getScannedPages().size());
+  }
+
+  @Test
+  void canDetectBrokenVideoLinks() {
+    ScanResults results = scan(testServer.page("page_with_broken_video.html"));
+    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
 }
