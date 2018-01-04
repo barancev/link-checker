@@ -188,4 +188,17 @@ class ScanSessionTest {
     assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
   }
 
+  @Test
+  void canDetectEmbedLinks() {
+    ScanResults results = scan(testServer.page("page_with_embed.html"));
+    assertEquals(2, results.getScannedPages().size());
+  }
+
+  @Test
+  void canDetectBrokenEmbedLinks() {
+    ScanResults results = scan(testServer.page("page_with_broken_embed.html"));
+    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
 }
