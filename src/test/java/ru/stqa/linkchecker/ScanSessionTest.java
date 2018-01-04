@@ -123,4 +123,17 @@ class ScanSessionTest {
     assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
   }
 
+  @Test
+  void canDetectAreaLinks() {
+    ScanResults results = scan(testServer.page("page_with_map.html"));
+    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
+  }
+
+  @Test
+  void canDetectBrokenAreaLinks() {
+    ScanResults results = scan(testServer.page("page_with_broken_map.html"));
+    assertEquals(4, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
 }

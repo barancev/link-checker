@@ -90,7 +90,7 @@ class ScanWorker implements Runnable {
   private Set<String> getLinks(String text, String baseUrl) {
     Document doc = Jsoup.parse(text, baseUrl);
     Set<String> result = new HashSet<>();
-    for (Element a : doc.select("a")) {
+    for (Element a : doc.select("a, area")) {
       result.add(a.attr("abs:href"));
     }
     for (Element a : doc.select("img")) {
