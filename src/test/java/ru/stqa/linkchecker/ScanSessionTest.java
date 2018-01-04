@@ -113,7 +113,7 @@ class ScanSessionTest {
   @Test
   void canDetectImageLinks() {
     ScanResults results = scan(testServer.page("page_with_image.html"));
-    assertEquals(2, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(2, results.getScannedPages().size());
   }
 
   @Test
@@ -126,7 +126,7 @@ class ScanSessionTest {
   @Test
   void canDetectAreaLinks() {
     ScanResults results = scan(testServer.page("page_with_map.html"));
-    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(3, results.getScannedPages().size());
   }
 
   @Test
@@ -134,6 +134,19 @@ class ScanSessionTest {
     ScanResults results = scan(testServer.page("page_with_broken_map.html"));
     assertEquals(4, results.getScannedPages().size()); // jetty adds an extra link
     assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
+  @Test
+  void canDetectObjectLinks() {
+    ScanResults results = scan(testServer.page("page_with_object.html"));
+    assertEquals(2, results.getScannedPages().size());
+  }
+
+  @Test
+  void canDetectBrokenObjectLinks() {
+    ScanResults results = scan(testServer.page("page_with_broken_object.html"));
+    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
   }
 
 }
