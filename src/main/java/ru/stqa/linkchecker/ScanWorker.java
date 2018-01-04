@@ -99,6 +99,9 @@ class ScanWorker implements Runnable {
     for (Element a : doc.select("object")) {
       result.add(a.attr("abs:data"));
     }
+    for (Element a : doc.select("source")) {
+      result.add(a.attr("abs:srcset"));
+    }
     return result;
   }
 
