@@ -162,4 +162,17 @@ class ScanSessionTest {
     assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
   }
 
+  @Test
+  void canDetectIframeLinks() {
+    ScanResults results = scan(testServer.page("page_with_iframe.html"));
+    assertEquals(2, results.getScannedPages().size());
+  }
+
+  @Test
+  void canDetectBrokenIframeLinks() {
+    ScanResults results = scan(testServer.page("page_with_broken_iframe.html"));
+    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
 }
