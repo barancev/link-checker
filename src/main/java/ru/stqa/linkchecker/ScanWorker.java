@@ -30,6 +30,7 @@ import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 class ScanWorker implements Runnable {
@@ -90,19 +91,27 @@ class ScanWorker implements Runnable {
   private Set<String> getLinks(String text, String baseUrl) {
     Document doc = Jsoup.parse(text, baseUrl);
     Set<String> result = new HashSet<>();
-    for (Element a : doc.select("a, area")) {
-      result.add(a.attr("abs:href"));
+    for (Element e : doc.select("a, area")) {
+      addLink(result, e, "abs:href");
     }
-    for (Element a : doc.select("img, iframe, audio, embed, video")) {
-      result.add(a.attr("abs:src"));
+    for (Element e : doc.select("img, iframe, audio, embed")) {
+      addLink(result, e, "abs:src");
     }
-    for (Element a : doc.select("object")) {
-      result.add(a.attr("abs:data"));
+    for (Element e : doc.select("video")) {
+      addLink(result, e, "abs:src");
+      addLink(result, e, "abs:poster");
     }
-    for (Element a : doc.select("source")) {
-      result.add(a.attr("abs:srcset"));
+    for (Element e : doc.select("object")) {
+      addLink(result, e, "abs:data");
+    }
+    for (Element e : doc.select("source")) {
+      addLink(result, e, "abs:srcset");
     }
     return result;
+  }
+
+  private void addLink(Set<String> result, Element e, String attrName) {
+    Optional.of(e.attr(attrName)).filter(attr -> attr.length() > 0).ifPresent(result::add);
   }
 
   public PageInfo getPageInfo() {
