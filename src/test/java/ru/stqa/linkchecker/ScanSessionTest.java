@@ -318,4 +318,17 @@ class ScanSessionTest {
     assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
   }
 
+  @Test
+  void canDetectFormInputImageLinks() {
+    ScanResults results = scan(testServer.page("page_with_form_image.html"));
+    assertEquals(3, results.getScannedPages().size());
+  }
+
+  @Test
+  void canDetectBrokenFormInputImageLinks() {
+    ScanResults results = scan(testServer.page("page_with_broken_form_image.html"));
+    assertEquals(4, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
 }
