@@ -16,6 +16,12 @@
 
 package ru.stqa.linkchecker;
 
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -36,8 +42,18 @@ public class ScanSession implements Runnable {
   private ConcurrentLinkedQueue<String> urlQueue = new ConcurrentLinkedQueue<>();
   private List<Consumer<PageInfo>> listeners = new ArrayList<>();
 
+  CloseableHttpClient httpclient;
+
   public ScanSession(ScanSettings settings) {
     this.settings = settings;
+
+    PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+    cm.setMaxTotal(settings.getThreadCount());
+    cm.setDefaultMaxPerRoute(settings.getThreadCount());
+
+    httpclient = HttpClients.custom().setConnectionManager(cm)
+      .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build())
+      .build();
   }
 
   public void addListener(Consumer<PageInfo> listener) {

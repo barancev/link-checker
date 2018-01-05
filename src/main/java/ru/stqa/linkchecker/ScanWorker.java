@@ -17,12 +17,9 @@
 package ru.stqa.linkchecker;
 
 import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -57,34 +54,31 @@ class ScanWorker implements Runnable {
   }
 
   private PageInfo handle(String url) throws IOException {
-    HttpClient httpClient = HttpClients.custom()
-      .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build())
-      .build();
-    HttpResponse response = httpClient.execute(new HttpGet(url));
-
-    if (scanLinks) {
-      Header[] headers = response.getHeaders("Content-Type");
-      if (headers.length == 0) {
-        return PageInfo.broken(url).message("No Content-Type header").build();
-      }
-      if (headers.length > 1) {
-        return PageInfo.broken(url).message("Multiple Content-Type headers").build();
-      }
-      String contentType = headers[0].getValue();
-      if (contentType.startsWith("text/")) {
+    try (CloseableHttpResponse response = session.httpclient.execute(new HttpGet(url), HttpClientContext.create())) {
+      if (scanLinks) {
+        Header[] headers = response.getHeaders("Content-Type");
+        if (headers.length == 0) {
+          return PageInfo.broken(url).message("No Content-Type header").build();
+        }
+        if (headers.length > 1) {
+          return PageInfo.broken(url).message("Multiple Content-Type headers").build();
+        }
+        String contentType = headers[0].getValue();
+        if (contentType.startsWith("text/")) {
+          return PageInfo.done(url)
+            .httpStatus(response.getStatusLine().getStatusCode())
+            .contentType(contentType)
+            .links(getLinks(EntityUtils.toString(response.getEntity()), url))
+            .build();
+        }
         return PageInfo.done(url)
           .httpStatus(response.getStatusLine().getStatusCode())
           .contentType(contentType)
-          .links(getLinks(EntityUtils.toString(response.getEntity()), url))
           .build();
-      }
-      return PageInfo.done(url)
-        .httpStatus(response.getStatusLine().getStatusCode())
-        .contentType(contentType)
-        .build();
 
-    } else {
-      return PageInfo.done(url).httpStatus(response.getStatusLine().getStatusCode()).build();
+      } else {
+        return PageInfo.done(url).httpStatus(response.getStatusLine().getStatusCode()).build();
+      }
     }
   }
 
@@ -110,6 +104,21 @@ class ScanWorker implements Runnable {
       addLink(result, e, "abs:action");
     }
     for (Element e : doc.select("input, button")) {
+      addLink(result, e, "abs:formaction");
+    }
+    return result;
+  }
+
+  private Set<String> getLinks2(String text, String baseUrl) {
+    Document doc = Jsoup.parse(text, baseUrl);
+    Set<String> result = new HashSet<>();
+    for (Element e : doc.select("a, area, link, img, iframe, audio, embed, video, source, track, script, input, object, form, button")) {
+      addLink(result, e, "abs:href");
+      addLink(result, e, "abs:src");
+      addLink(result, e, "abs:poster");
+      addLink(result, e, "abs:data");
+      addLink(result, e, "abs:srcset");
+      addLink(result, e, "abs:action");
       addLink(result, e, "abs:formaction");
     }
     return result;

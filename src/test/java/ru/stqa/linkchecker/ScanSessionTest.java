@@ -16,6 +16,7 @@
 
 package ru.stqa.linkchecker;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
@@ -308,6 +309,18 @@ class ScanSessionTest {
     assertEquals(count200 + count404, results.getScannedPages().size());
     assertEquals(count200, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
     assertEquals(count404, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 404).count());
+  }
+
+  @Disabled
+  @Test
+  void benchmark() {
+    long start = System.currentTimeMillis();
+    for (int i = 0; i < 1000; i++) {
+      scan(testServer.page("perf_page.html"));
+    }
+    long end = System.currentTimeMillis();
+    long duration = end - start;
+    System.out.println(duration);
   }
 
 }

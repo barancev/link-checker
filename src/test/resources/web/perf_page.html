@@ -1,0 +1,43 @@
+<html>
+<head>
+  <title>Hello</title>
+  <link rel="stylesheet" type="text/css" href="theme.css">
+  <script src="simple_script.js"></script>
+</head>
+<body>
+  <h1>Heading</h1>
+  <p><a href="simple_page.html">link</a></p>
+  <p><audio src="balloon.wav" controls></audio></p>
+  <p><audio controls><source src="balloon.wav"></audio></p>
+  <embed width="32" height="32" src="microsoft.png"></embed>
+  <div><form action="simple_page.html"></form></div>
+  <div><form action="simple_page.html">
+    <input type="image" src="microsoft.png">
+  </form></div>
+  <div><form action="simple_page.html">
+    <input type="submit">
+    <input type="submit" formaction="simple_page2.html">
+  </form></div>
+  <div><form action="simple_page.html">
+    <button type="submit"></button>
+    <button type="submit" formaction="simple_page2.html"></button>
+  </form></div>
+  <iframe src="simple_page.html"></iframe>
+  <p><img src="microsoft.png"></p>
+  <p><img src="microsoft.png" usemap="#mymap"></p>
+  <map name="mymap">
+    <area shape="rect" coords="0,0,32,32" href="simple_page.html">
+  </map>
+  <object width="32" height="32" data="microsoft.png"></object>
+  <p><picture>
+    <source media="(min-width: 465px)" srcset="yahoo.png">
+    <img src="microsoft.png">
+  </picture></p>
+  <p><video src="click.mp4" controls></video></p>
+  <p><video controls><source src="click.mp4"></video></p>
+  <p><video src="click.mp4" poster="microsoft.png" controls></video></p>
+  <p><video controls><source src="click.mp4">
+    <track src="subtitles.txt" kind="subtitles">
+  </video></p>
+</body>
+</html>
