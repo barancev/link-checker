@@ -19,6 +19,7 @@ package ru.stqa.linkchecker;
 import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -276,6 +277,22 @@ class ScanSessionTest {
   @Test
   void canDetectBrokenCssLinks() {
     assert200and404(scan(testServer.page("page_with_missing_css.html")), 1, 1);
+  }
+
+  @Test
+  void canDetectLinksRelativeToBase() {
+    Stream.of("page_with_map.html", "page_with_video_poster.html", "page_with_form_image.html",
+      "page_with_video_subtitles.html", "page_with_form_submit.html", "page_with_form_submit2.html",
+      "page_with_picture.html")
+      .map(s -> "subdir/" + s)
+      .forEach(s -> assert200(scan(testServer.page(s)), 3));
+
+    Stream.of("single_link_page.html", "page_with_audio.html", "page_with_audio2.html", "page_with_embed.html",
+      "page_with_form.html", "page_with_iframe.html", "page_with_image.html", "page_with_object.html",
+      "page_with_simple_css.html", "page_with_simple_script.html", "page_with_video.html",
+      "page_with_video2.html")
+      .map(s -> "subdir/" + s)
+      .forEach(s -> assert200(scan(testServer.page(s)), 2));
   }
 
   private void assert200(ScanResults results, int count) {
