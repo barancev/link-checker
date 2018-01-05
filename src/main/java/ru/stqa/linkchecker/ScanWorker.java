@@ -54,7 +54,7 @@ class ScanWorker implements Runnable {
   }
 
   private PageInfo handle(String url) throws IOException {
-    try (CloseableHttpResponse response = session.httpclient.execute(new HttpGet(url), HttpClientContext.create())) {
+    try (CloseableHttpResponse response = session.getHttpClient().execute(new HttpGet(url), HttpClientContext.create())) {
       if (scanLinks) {
         Header[] headers = response.getHeaders("Content-Type");
         if (headers.length == 0) {

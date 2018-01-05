@@ -42,7 +42,7 @@ public class ScanSession implements Runnable {
   private ConcurrentLinkedQueue<String> urlQueue = new ConcurrentLinkedQueue<>();
   private List<Consumer<PageInfo>> listeners = new ArrayList<>();
 
-  CloseableHttpClient httpclient;
+  private CloseableHttpClient httpclient;
 
   public ScanSession(ScanSettings settings) {
     this.settings = settings;
@@ -85,6 +85,10 @@ public class ScanSession implements Runnable {
     }
 
     service.shutdown();
+  }
+
+  CloseableHttpClient getHttpClient() {
+    return httpclient;
   }
 
   public void done(ScanWorker worker) {
