@@ -54,294 +54,243 @@ class ScanSessionTest {
   void canScanPageWithNoLinks() {
     String startPage = testServer.page("simple_page.html");
     ScanResults results = scan(startPage);
-
-    assertEquals(1, results.getScannedPages().size());
-
-    PageInfo pageInfo = results.getPageInfo(startPage);
-    assertEquals(startPage, pageInfo.getUrl());
+    assert200(results, 1);
+    assertEquals(startPage, results.getPageInfo(startPage).getUrl());
   }
 
   @Test
   void canScanPageWithALink() {
-    ScanResults results = scan(testServer.page("single_link_page.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("single_link_page.html")), 2);
   }
 
   @Test
   void canScanPageWithMultipleLinks() {
-    ScanResults results = scan(testServer.page("multi_link_page.html"));
-    assertEquals(3, results.getScannedPages().size());
+    assert200(scan(testServer.page("multi_link_page.html")), 3);
   }
 
   @Test
   void canScanPageWithDuplicatedLinks() {
-    ScanResults results = scan(testServer.page("duplicated_link_page.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("duplicated_link_page.html")), 2);
   }
 
   @Test
   void canScanPageWithSelfReferencingLinks() {
-    ScanResults results = scan(testServer.page("self_link_page.html"));
-    assertEquals(1, results.getScannedPages().size());
+    assert200(scan(testServer.page("self_link_page.html")), 1);
   }
 
   @Test
   void canScanPageWithDuplicatedSelfReferencingLinks() {
-    ScanResults results = scan(testServer.page("duplicated_self_link_page.html"));
-    assertEquals(1, results.getScannedPages().size());
+    assert200(scan(testServer.page("duplicated_self_link_page.html")), 1);
   }
 
   @Test
   void canScanMutuallyReferencingPages() {
-    ScanResults results = scan(testServer.page("mutual_link_page1.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("mutual_link_page1.html")), 2);
   }
 
   @Test
   void canScanPagesWithLoopReferences() {
-    ScanResults results = scan(testServer.page("loop_link_page1.html"));
-    assertEquals(3, results.getScannedPages().size());
+    assert200(scan(testServer.page("loop_link_page1.html")), 3);
   }
 
   @Test
   void canDetectBrokenLinks() {
-    ScanResults results = scan(testServer.page("broken_link_page.html"));
-    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("broken_link_page.html")), 1, 1);
   }
 
   @Test
   void canDetectImageLinks() {
-    ScanResults results = scan(testServer.page("page_with_image.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_image.html")), 2);
   }
 
   @Test
   void canDetectBrokenImageLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_image.html"));
-    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_image.html")), 1, 1);
   }
 
   @Test
   void canDetectAreaLinks() {
-    ScanResults results = scan(testServer.page("page_with_map.html"));
-    assertEquals(3, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_map.html")), 3);
   }
 
   @Test
   void canDetectBrokenAreaLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_map.html"));
-    assertEquals(4, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_map.html")), 2, 1);
   }
 
   @Test
   void canDetectObjectLinks() {
-    ScanResults results = scan(testServer.page("page_with_object.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_object.html")), 2);
   }
 
   @Test
   void canDetectBrokenObjectLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_object.html"));
-    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_object.html")), 1, 1);
   }
 
   @Test
   void canDetectPictureLinks() {
-    ScanResults results = scan(testServer.page("page_with_picture.html"));
-    assertEquals(3, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_picture.html")), 3);
   }
 
   @Test
   void canDetectBrokenPictureLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_picture.html"));
-    assertEquals(4, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_picture.html")), 2, 1);
   }
 
   @Test
   void canDetectIframeLinks() {
-    ScanResults results = scan(testServer.page("page_with_iframe.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_iframe.html")), 2);
   }
 
   @Test
   void canDetectBrokenIframeLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_iframe.html"));
-    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_iframe.html")), 1, 1);
   }
 
   @Test
   void canDetectAudioLinks() {
-    ScanResults results = scan(testServer.page("page_with_audio.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_audio.html")), 2);
   }
 
   @Test
   void canDetectBrokenAudioLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_audio.html"));
-    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_audio.html")), 1, 1);
   }
 
   @Test
   void canDetectAudioSourceLinks() {
-    ScanResults results = scan(testServer.page("page_with_audio2.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_audio2.html")), 2);
   }
 
   @Test
   void canDetectBrokenAudioSourceLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_audio2.html"));
-    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_audio2.html")), 1, 1);
   }
 
   @Test
   void canDetectEmbedLinks() {
-    ScanResults results = scan(testServer.page("page_with_embed.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_embed.html")), 2);
   }
 
   @Test
   void canDetectBrokenEmbedLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_embed.html"));
-    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_embed.html")), 1, 1);
   }
 
   @Test
   void canDetectVideoLinks() {
-    ScanResults results = scan(testServer.page("page_with_video.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_video.html")), 2);
   }
 
   @Test
   void canDetectBrokenVideoLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_video.html"));
-    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_video.html")), 1, 1);
   }
 
   @Test
   void canDetectVideoPosterLinks() {
-    ScanResults results = scan(testServer.page("page_with_video_poster.html"));
-    assertEquals(3, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_video_poster.html")), 3);
   }
 
   @Test
   void canDetectBrokenVideoPosterLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_video_poster.html"));
-    assertEquals(4, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_video_poster.html")), 2, 1);
   }
 
   @Test
   void canDetectVideoSourceLinks() {
-    ScanResults results = scan(testServer.page("page_with_video2.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_video2.html")), 2);
   }
 
   @Test
   void canDetectBrokenVideoSourceLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_video2.html"));
-    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_video2.html")), 1, 1);
   }
 
   @Test
   void canDetectVideoTrackLinks() {
-    ScanResults results = scan(testServer.page("page_with_video_subtitles.html"));
-    assertEquals(3, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_video_subtitles.html")), 3);
   }
 
   @Test
   void canDetectBrokenVideoTrackLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_video_subtitles.html"));
-    assertEquals(4, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_video_subtitles.html")), 2, 1);
   }
 
   @Test
   void canDetectScriptLinks() {
-    ScanResults results = scan(testServer.page("page_with_simple_script.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_simple_script.html")), 2);
   }
 
   @Test
   void canDetectBrokenScriptLinks() {
-    ScanResults results = scan(testServer.page("page_with_missing_script.html"));
-    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_missing_script.html")), 1, 1);
   }
 
   @Test
   void canDetectFormActionLinks() {
-    ScanResults results = scan(testServer.page("page_with_form.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_form.html")), 2);
   }
 
   @Test
   void canDetectBrokenFormActionLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_form.html"));
-    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_form.html")), 1, 1);
   }
 
   @Test
   void canDetectFormSubmitLinks() {
-    ScanResults results = scan(testServer.page("page_with_form_submit.html"));
-    assertEquals(3, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_form_submit.html")), 3);
   }
 
   @Test
   void canDetectBrokenFormSubmitLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_form_submit.html"));
-    assertEquals(4, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_form_submit.html")), 2, 1);
   }
 
   @Test
   void canDetectFormSubmitButtonLinks() {
-    ScanResults results = scan(testServer.page("page_with_form_submit2.html"));
-    assertEquals(3, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_form_submit2.html")), 3);
   }
 
   @Test
   void canDetectBrokenFormSubmitButtonLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_form_submit2.html"));
-    assertEquals(4, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_form_submit2.html")), 2, 1);
   }
 
   @Test
   void canDetectFormInputImageLinks() {
-    ScanResults results = scan(testServer.page("page_with_form_image.html"));
-    assertEquals(3, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_form_image.html")), 3);
   }
 
   @Test
   void canDetectBrokenFormInputImageLinks() {
-    ScanResults results = scan(testServer.page("page_with_broken_form_image.html"));
-    assertEquals(4, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_broken_form_image.html")), 2, 1);
   }
 
   @Test
   void canDetectCssLinks() {
-    ScanResults results = scan(testServer.page("page_with_simple_css.html"));
-    assertEquals(2, results.getScannedPages().size());
+    assert200(scan(testServer.page("page_with_simple_css.html")), 2);
   }
 
   @Test
   void canDetectBrokenCssLinks() {
-    ScanResults results = scan(testServer.page("page_with_missing_css.html"));
-    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
-    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assert200and404(scan(testServer.page("page_with_missing_css.html")), 1, 1);
+  }
+
+  private void assert200(ScanResults results, int count) {
+    assertEquals(count, results.getScannedPages().size());
+    assertEquals(count, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
+  private void assert200and404(ScanResults results, int count200, int count404) {
+    if (count404 > 0) {
+      // jetty adds an extra link
+      count200 += 1;
+    }
+    assertEquals(count200 + count404, results.getScannedPages().size());
+    assertEquals(count200, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+    assertEquals(count404, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 404).count());
   }
 
 }
