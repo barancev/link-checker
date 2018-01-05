@@ -279,4 +279,43 @@ class ScanSessionTest {
     assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
   }
 
+  @Test
+  void canDetectFormActionLinks() {
+    ScanResults results = scan(testServer.page("page_with_form.html"));
+    assertEquals(2, results.getScannedPages().size());
+  }
+
+  @Test
+  void canDetectBrokenFormActionLinks() {
+    ScanResults results = scan(testServer.page("page_with_broken_form.html"));
+    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
+  @Test
+  void canDetectFormSubmitLinks() {
+    ScanResults results = scan(testServer.page("page_with_form_submit.html"));
+    assertEquals(3, results.getScannedPages().size());
+  }
+
+  @Test
+  void canDetectBrokenFormSubmitLinks() {
+    ScanResults results = scan(testServer.page("page_with_broken_form_submit.html"));
+    assertEquals(4, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
+  @Test
+  void canDetectFormSubmitButtonLinks() {
+    ScanResults results = scan(testServer.page("page_with_form_submit2.html"));
+    assertEquals(3, results.getScannedPages().size());
+  }
+
+  @Test
+  void canDetectBrokenFormSubmitButtonLinks() {
+    ScanResults results = scan(testServer.page("page_with_broken_form_submit2.html"));
+    assertEquals(4, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
 }

@@ -106,6 +106,12 @@ class ScanWorker implements Runnable {
     for (Element e : doc.select("source")) {
       addLink(result, e, "abs:srcset");
     }
+    for (Element e : doc.select("form")) {
+      addLink(result, e, "abs:action");
+    }
+    for (Element e : doc.select("input, button")) {
+      addLink(result, e, "abs:formaction");
+    }
     return result;
   }
 
