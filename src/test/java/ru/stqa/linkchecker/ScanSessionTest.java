@@ -331,4 +331,17 @@ class ScanSessionTest {
     assertEquals(3, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
   }
 
+  @Test
+  void canDetectCssLinks() {
+    ScanResults results = scan(testServer.page("page_with_simple_css.html"));
+    assertEquals(2, results.getScannedPages().size());
+  }
+
+  @Test
+  void canDetectBrokenCssLinks() {
+    ScanResults results = scan(testServer.page("page_with_missing_css.html"));
+    assertEquals(3, results.getScannedPages().size()); // jetty adds an extra link
+    assertEquals(2, results.getScannedPages().stream().filter(p -> p.getHttpStatus() == 200).count());
+  }
+
 }
