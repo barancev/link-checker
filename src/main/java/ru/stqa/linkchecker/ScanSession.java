@@ -69,7 +69,9 @@ public class ScanSession implements Runnable {
     while (workerCounter.intValue() > 0 || urlQueue.size() > 0) {
       Optional.ofNullable(urlQueue.poll()).ifPresent(url -> {
         if (results.getPageInfo(url) == null) {
-          results.addPageInfo(PageInfo.inProgress(url).build());
+          PageInfo pageInfo = PageInfo.inProgress(url).build();
+          listeners.forEach(l -> l.accept(pageInfo));
+          results.addPageInfo(pageInfo);
           boolean scanLinks = false;
           try {
             scanLinks = Objects.equals(new URL(url).getHost(), settings.getStartUrlHost());

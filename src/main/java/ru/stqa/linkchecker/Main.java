@@ -37,7 +37,11 @@ public class Main {
     JCommander.newBuilder().addObject(options).args(args).build();
 
     ScanSession session = new ScanSession(new ScanSettings(options.target, options.threadCount));
-    session.addListener(pageInfo -> System.out.print("."));
+    session.addListener(pageInfo -> {
+      if (pageInfo.getStatus() != ScanStatus.IN_PROGRESS) {
+        System.out.print(".");
+      }
+    });
     Thread t = new Thread(session);
     t.start();
     t.join();
