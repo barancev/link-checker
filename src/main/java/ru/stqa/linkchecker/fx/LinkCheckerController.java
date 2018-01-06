@@ -16,11 +16,13 @@
 
 package ru.stqa.linkchecker.fx;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import org.controlsfx.control.table.TableFilter;
 import ru.stqa.linkchecker.ScanSession;
 import ru.stqa.linkchecker.ScanSettings;
 import ru.stqa.linkchecker.ScanStatus;
@@ -50,6 +52,7 @@ public class LinkCheckerController {
   public void setMainApp(Main mainApp) {
     this.mainApp = mainApp;
     pageTable.setItems(mainApp.getPages());
+    TableFilter.forTableView(pageTable).apply();
   }
 
   @FXML
@@ -72,7 +75,7 @@ public class LinkCheckerController {
     }
     session.addListener(pageInfo -> {
       if (pageInfo.getStatus() != ScanStatus.IN_PROGRESS) {
-        mainApp.getPages().add(new PageInfoModel(pageInfo));
+        Platform.runLater(() -> mainApp.getPages().add(new PageInfoModel(pageInfo)));
       }
     });
     Thread t = new Thread(session);
