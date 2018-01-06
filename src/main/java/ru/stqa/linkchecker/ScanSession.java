@@ -43,6 +43,8 @@ public class ScanSession implements Runnable {
   private List<Consumer<PageInfo>> listeners = new ArrayList<>();
 
   private CloseableHttpClient httpclient;
+  private boolean interrupted = false;
+  private boolean stopped = false;
 
   public ScanSession(ScanSettings settings) {
     this.settings = settings;
@@ -66,7 +68,7 @@ public class ScanSession implements Runnable {
 
     ExecutorService service = Executors.newFixedThreadPool(settings.getThreadCount());
 
-    while (workerCounter.intValue() > 0 || urlQueue.size() > 0) {
+    while (!interrupted && (workerCounter.intValue() > 0 || urlQueue.size() > 0)) {
       Optional.ofNullable(urlQueue.poll()).ifPresent(url -> {
         if (results.getPageInfo(url) == null) {
           PageInfo pageInfo = PageInfo.inProgress(url).build();
@@ -84,7 +86,8 @@ public class ScanSession implements Runnable {
       Thread.yield();
     }
 
-    service.shutdown();
+    service.shutdownNow();
+    stopped = true;
   }
 
   CloseableHttpClient getHttpClient() {
@@ -98,7 +101,15 @@ public class ScanSession implements Runnable {
     listeners.forEach(l -> l.accept(worker.getPageInfo()));
   }
 
+  public void interrupt() {
+    interrupted = true;
+  }
+
   public ScanResults getResults() {
     return results;
+  }
+
+  public boolean isStopped() {
+    return stopped;
   }
 }

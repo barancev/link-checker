@@ -18,10 +18,7 @@ package ru.stqa.linkchecker.fx;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import org.controlsfx.control.table.TableFilter;
 import ru.stqa.linkchecker.ScanSession;
 import ru.stqa.linkchecker.ScanSettings;
@@ -83,6 +80,10 @@ public class LinkCheckerController {
   }
 
   private void stopScan() {
+    session.interrupt();
+    while (!session.isStopped()) {
+      Thread.yield();
+    }
     startUrl.setDisable(false);
     scanButton.setText("Start");
     scanButton.setOnAction(v -> goScan());
