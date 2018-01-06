@@ -47,7 +47,7 @@ class ScanWorker implements Runnable {
   public void run() {
     try {
       pageInfo = handle(url);
-    } catch (IOException e) {
+    } catch (Throwable e) {
       pageInfo = PageInfo.broken(url).message(e.getMessage()).build();
     }
     session.done(this);
