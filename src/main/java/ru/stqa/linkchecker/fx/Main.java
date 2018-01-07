@@ -60,6 +60,10 @@ public class Main extends Application {
     controller.setMainApp(this);
   }
 
+  public Stage getPrimaryStage() {
+    return primaryStage;
+  }
+
   public ObservableList<PageInfoModel> getPages() {
     return pages;
   }

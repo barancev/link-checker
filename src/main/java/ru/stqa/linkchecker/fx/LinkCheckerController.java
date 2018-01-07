@@ -25,6 +25,7 @@ import ru.stqa.linkchecker.ScanSettings;
 import ru.stqa.linkchecker.ScanStatus;
 
 import java.net.MalformedURLException;
+import java.util.Optional;
 
 public class LinkCheckerController {
 
@@ -61,9 +62,31 @@ public class LinkCheckerController {
 
   @FXML
   private void goScan() {
+    if (startUrl.getText() == null || startUrl.getText().equals("")) {
+      Alert alert = new Alert(Alert.AlertType.WARNING);
+      alert.initOwner(mainApp.getPrimaryStage());
+      alert.setTitle("No Start URL");
+      alert.setContentText("Please specify a start URL.");
+      alert.showAndWait();
+      return;
+    }
+
+    if (mainApp.getPages().size() > 0) {
+      Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+      alert.initOwner(mainApp.getPrimaryStage());
+      alert.setTitle("Confirmation");
+      alert.setHeaderText("List of scanned pages is not empty");
+      alert.setContentText("Do you want to delete results of the previous scan session and start a new one?");
+      Optional<ButtonType> result = alert.showAndWait();
+      if (result.get() == ButtonType.OK){
+        mainApp.getPages().clear();
+      } else {
+        return;
+      }
+    }
+
     startUrl.setDisable(true);
-    scanButton.setText("Stop");
-    scanButton.setOnAction(v -> stopScan());
+    scanButton.setDisable(true);
 
     try {
       session = new ScanSession(new ScanSettings(startUrl.getText(), 1));
@@ -77,6 +100,10 @@ public class LinkCheckerController {
     });
     Thread t = new Thread(session);
     t.start();
+
+    scanButton.setText("Stop");
+    scanButton.setDisable(false);
+    scanButton.setOnAction(v -> stopScan());
   }
 
   private void stopScan() {
