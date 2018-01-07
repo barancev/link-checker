@@ -96,6 +96,7 @@ public class LinkCheckerController {
       Alert alert = new Alert(Alert.AlertType.WARNING);
       alert.initOwner(mainApp.getPrimaryStage());
       alert.setTitle("No Start URL");
+      alert.setHeaderText(null);
       alert.setContentText("Please specify a start URL.");
       alert.showAndWait();
       return;
@@ -131,6 +132,16 @@ public class LinkCheckerController {
     Thread t = new Thread(session);
     t.start();
 
+    Thread waiter = new Thread(() -> {
+      try {
+        t.join();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      Platform.runLater(this::scanCompleted);
+    });
+    waiter.start();
+
     scanButton.setText("Stop");
     scanButton.setDisable(false);
     scanButton.setOnAction(v -> stopScan());
@@ -141,6 +152,20 @@ public class LinkCheckerController {
     while (!session.isStopped()) {
       Thread.yield();
     }
+    restoreScanButton();
+  }
+
+  private void scanCompleted() {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.initOwner(mainApp.getPrimaryStage());
+    alert.setTitle("Finish");
+    alert.setHeaderText(null);
+    alert.setContentText("Scanning completed.");
+    alert.showAndWait();
+    restoreScanButton();
+  }
+
+  private void restoreScanButton() {
     startUrl.setDisable(false);
     scanButton.setText("Start");
     scanButton.setOnAction(v -> goScan());
