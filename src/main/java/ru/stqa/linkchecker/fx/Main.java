@@ -54,6 +54,8 @@ public class Main extends Application {
     }
     Scene scene = new Scene(rootLayout);
     primaryStage.setScene(scene);
+    primaryStage.setMinWidth(rootLayout.getMinWidth());
+    primaryStage.setMinHeight(rootLayout.getMinHeight());
     primaryStage.show();
 
     LinkCheckerController controller = loader.getController();
