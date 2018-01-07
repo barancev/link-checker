@@ -172,6 +172,7 @@ public class LinkCheckerController {
     pageProperties.clear();
     pageProperties.addAll(
       new PropertyModel("URL", pageInfo.getUrl()),
+      new PropertyModel("Content Type", pageInfo.getContentType()),
       new PropertyModel("HTTP Status", pageInfo.getHttpStatus()),
       new PropertyModel("Message", pageInfo.getMessage()));
   }

@@ -24,12 +24,14 @@ public class PageInfoModel {
 
   private final StringProperty url;
   private final StringProperty httpStatus;
+  private final StringProperty contentType;
   private final StringProperty message;
 
   public PageInfoModel(PageInfo pageInfo) {
     url = new SimpleStringProperty(pageInfo.getUrl());
     httpStatus = new SimpleStringProperty(Integer.toString(pageInfo.getHttpStatus()));
     message = new SimpleStringProperty(pageInfo.getMessage());
+    contentType = new SimpleStringProperty(pageInfo.getContentType());
   }
 
   public String getUrl() {
@@ -54,5 +56,13 @@ public class PageInfoModel {
 
   public StringProperty messageProperty() {
     return message;
+  }
+
+  public String getContentType() {
+    return contentType.get();
+  }
+
+  public StringProperty contentTypeProperty() {
+    return contentType;
   }
 }
