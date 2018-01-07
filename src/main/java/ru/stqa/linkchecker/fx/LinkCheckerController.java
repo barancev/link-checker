@@ -17,6 +17,10 @@
 package ru.stqa.linkchecker.fx;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.controlsfx.control.table.TableFilter;
@@ -45,11 +49,31 @@ public class LinkCheckerController {
   @FXML
   private TableColumn<PageInfoModel, String> pageMessageColumn;
 
+  @FXML
+  private TableView<PropertyModel> pageInfoTable;
+  @FXML
+  private TableColumn<PropertyModel, String> pageInfoKeyColumn;
+  @FXML
+  private TableColumn<PropertyModel, String> pageInfoValueColumn;
+
   private ScanSession session;
+
+  private class PropertyModel {
+    StringProperty key;
+    StringProperty value;
+
+    PropertyModel(String key, String value) {
+      this.key = new SimpleStringProperty(key);
+      this.value = new SimpleStringProperty(value);
+    }
+  }
+
+  private ObservableList<PropertyModel> pageProperties = FXCollections.observableArrayList();
 
   public void setMainApp(Main mainApp) {
     this.mainApp = mainApp;
     pageTable.setItems(mainApp.getPages());
+    pageInfoTable.setItems(pageProperties);
     TableFilter.forTableView(pageTable).apply();
   }
 
@@ -58,6 +82,12 @@ public class LinkCheckerController {
     pageUrlColumn.setCellValueFactory(cellData -> cellData.getValue().urlProperty());
     pageStatusColumn.setCellValueFactory(cellData -> cellData.getValue().httpStatusProperty());
     pageMessageColumn.setCellValueFactory(cellData -> cellData.getValue().messageProperty());
+
+    pageTable.getSelectionModel().selectedItemProperty().addListener(
+      (observable, oldValue, newValue) -> showPageInfoProperty(newValue));
+
+    pageInfoKeyColumn.setCellValueFactory(cellData -> cellData.getValue().key);
+    pageInfoValueColumn.setCellValueFactory(cellData -> cellData.getValue().value);
   }
 
   @FXML
@@ -114,6 +144,14 @@ public class LinkCheckerController {
     startUrl.setDisable(false);
     scanButton.setText("Start");
     scanButton.setOnAction(v -> goScan());
+  }
+
+  private void showPageInfoProperty(PageInfoModel pageInfo) {
+    pageProperties.clear();
+    pageProperties.addAll(
+      new PropertyModel("URL", pageInfo.getUrl()),
+      new PropertyModel("Http Status", pageInfo.getHttpStatus()),
+      new PropertyModel("Message", pageInfo.getMessage()));
   }
 
 }

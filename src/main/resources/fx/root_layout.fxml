@@ -85,10 +85,10 @@
                                     <content>
                                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                              <children>
-                                                <TableView prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10.0" AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
+                                                <TableView fx:id="pageInfoTable" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10.0" AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
                                                   <columns>
-                                                    <TableColumn prefWidth="75.0" text="Property" />
-                                                    <TableColumn minWidth="-1.0" prefWidth="95.0" text="Value" />
+                                                    <TableColumn fx:id="pageInfoKeyColumn" prefWidth="75.0" text="Property" />
+                                                    <TableColumn fx:id="pageInfoValueColumn" minWidth="-1.0" prefWidth="95.0" text="Value" />
                                                   </columns>
                                                 </TableView>
                                              </children>
