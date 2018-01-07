@@ -74,12 +74,7 @@ public class ScanSession implements Runnable {
           PageInfo pageInfo = PageInfo.inProgress(url).build();
           listeners.forEach(l -> l.accept(pageInfo));
           results.addPageInfo(pageInfo);
-          boolean scanLinks = false;
-          try {
-            scanLinks = Objects.equals(new URL(url).getHost(), settings.getStartUrlHost());
-          } catch (MalformedURLException ignore) {
-          }
-          service.submit(new ScanWorker(this, url, scanLinks));
+          service.submit(new ScanWorker(this, url, url.startsWith(settings.getStartUrl())));
           workerCounter.incrementAndGet();
         }
       });
