@@ -46,8 +46,6 @@ public class LinkCheckerController {
   private TableColumn<PageInfoModel, String> pageUrlColumn;
   @FXML
   private TableColumn<PageInfoModel, String> pageStatusColumn;
-  @FXML
-  private TableColumn<PageInfoModel, String> pageMessageColumn;
 
   @FXML
   private TableView<PropertyModel> pageInfoTable;
@@ -81,7 +79,6 @@ public class LinkCheckerController {
   private void initialize() {
     pageUrlColumn.setCellValueFactory(cellData -> cellData.getValue().urlProperty());
     pageStatusColumn.setCellValueFactory(cellData -> cellData.getValue().httpStatusProperty());
-    pageMessageColumn.setCellValueFactory(cellData -> cellData.getValue().messageProperty());
 
     pageTable.getSelectionModel().selectedItemProperty().addListener(
       (observable, oldValue, newValue) -> showPageInfoProperty(newValue));
@@ -175,7 +172,7 @@ public class LinkCheckerController {
     pageProperties.clear();
     pageProperties.addAll(
       new PropertyModel("URL", pageInfo.getUrl()),
-      new PropertyModel("Http Status", pageInfo.getHttpStatus()),
+      new PropertyModel("HTTP Status", pageInfo.getHttpStatus()),
       new PropertyModel("Message", pageInfo.getMessage()));
   }
 
