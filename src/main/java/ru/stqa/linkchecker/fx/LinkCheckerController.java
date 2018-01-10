@@ -21,13 +21,24 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 import org.controlsfx.control.table.TableFilter;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.swingViewer.ViewPanel;
+import org.graphstream.ui.view.Viewer;
 import ru.stqa.linkchecker.ScanSession;
 import ru.stqa.linkchecker.ScanSettings;
 import ru.stqa.linkchecker.ScanStatus;
 
+import javax.swing.*;
 import java.net.MalformedURLException;
 import java.util.Optional;
 
@@ -39,6 +50,9 @@ public class LinkCheckerController {
   private TextField startUrl;
   @FXML
   private Button scanButton;
+
+  @FXML
+  private StackPane graphPane;
 
   @FXML
   private TableView<PageInfoModel> pageTable;
@@ -55,6 +69,9 @@ public class LinkCheckerController {
   private TableColumn<PropertyModel, String> pageInfoValueColumn;
 
   private ScanSession session;
+
+  private Graph graph;
+  private Viewer graphViewer;
 
   private class PropertyModel {
     StringProperty key;
@@ -85,7 +102,23 @@ public class LinkCheckerController {
 
     pageInfoKeyColumn.setCellValueFactory(cellData -> cellData.getValue().key);
     pageInfoValueColumn.setCellValueFactory(cellData -> cellData.getValue().value);
+
+    graph = new SingleGraph("embedded");
+
+    SwingUtilities.invokeLater(() -> {
+      graphViewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+      graphViewer.enableAutoLayout();
+      ViewPanel graphView = graphViewer.addDefaultView(false);
+
+      Platform.runLater(() -> {
+        SwingNode swingNode = new SwingNode();
+        swingNode.setContent(graphView);
+        graphPane.getChildren().add(swingNode);
+        graphPane.requestLayout();
+      });
+    });
   }
+
 
   @FXML
   private void goScan() {
@@ -106,8 +139,9 @@ public class LinkCheckerController {
       alert.setHeaderText("List of scanned pages is not empty");
       alert.setContentText("Do you want to delete results of the previous scan session and start a new one?");
       Optional<ButtonType> result = alert.showAndWait();
-      if (result.get() == ButtonType.OK){
+      if (result.isPresent() && result.get() == ButtonType.OK){
         mainApp.getPages().clear();
+        graph.clear();
       } else {
         return;
       }
@@ -123,7 +157,25 @@ public class LinkCheckerController {
     }
     session.addListener(pageInfo -> {
       if (pageInfo.getStatus() != ScanStatus.IN_PROGRESS) {
-        Platform.runLater(() -> mainApp.getPages().add(new PageInfoModel(pageInfo)));
+        Platform.runLater(() -> {
+          mainApp.getPages().add(new PageInfoModel(pageInfo));
+          if (graph.getNode(pageInfo.getUrl()) == null) {
+            Node node = graph.addNode(pageInfo.getUrl());
+            node.addAttribute("ui.label", pageInfo.getUrl());
+            //System.out.println("+ Node " + pageInfo.getUrl());
+          }
+          pageInfo.getLinks().forEach(link -> {
+            if (graph.getNode(link) == null) {
+              Node node = graph.addNode(link);
+              node.addAttribute("ui.label", link);
+              //System.out.println("+ Node " + link);
+            }
+            if (graph.getEdge(String.format("%s -> %s", pageInfo.getUrl(), link)) == null) {
+              Edge edge = graph.addEdge(String.format("%s -> %s", pageInfo.getUrl(), link), pageInfo.getUrl(), link, true);
+              //System.out.println("+ Edge " + edge.getId());
+            }
+          });
+        });
       }
     });
     Thread t = new Thread(session);
@@ -177,4 +229,7 @@ public class LinkCheckerController {
       new PropertyModel("Message", pageInfo.getMessage()));
   }
 
+  void closeGraphViewer() {
+    graphViewer.close();
+  }
 }

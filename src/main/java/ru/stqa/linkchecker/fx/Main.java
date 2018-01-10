@@ -29,7 +29,6 @@ import java.io.IOException;
 public class Main extends Application {
 
   private Stage primaryStage;
-  private BorderPane rootLayout;
 
   private ObservableList<PageInfoModel> pages = FXCollections.observableArrayList();
 
@@ -44,9 +43,10 @@ public class Main extends Application {
     initRootLayout();
   }
 
-  public void initRootLayout() {
+  private void initRootLayout() {
     FXMLLoader loader = new FXMLLoader();
     loader.setLocation(Main.class.getResource("/fx/root_layout.fxml"));
+    BorderPane rootLayout;
     try {
       rootLayout = loader.load();
     } catch (IOException e) {
@@ -60,6 +60,8 @@ public class Main extends Application {
 
     LinkCheckerController controller = loader.getController();
     controller.setMainApp(this);
+
+    primaryStage.setOnCloseRequest((event) -> controller.closeGraphViewer());
   }
 
   public Stage getPrimaryStage() {
