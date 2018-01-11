@@ -39,8 +39,10 @@ import ru.stqa.linkchecker.ScanSettings;
 import ru.stqa.linkchecker.ScanStatus;
 
 import javax.swing.*;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.util.Optional;
+import java.util.Scanner;
 
 public class LinkCheckerController {
 
@@ -106,10 +108,10 @@ public class LinkCheckerController {
     pageInfoValueColumn.setCellValueFactory(cellData -> cellData.getValue().value);
 
     graph = new SingleGraph("embedded");
+    graph.addAttribute("ui.stylesheet", loadStyleSheet());
 
     SwingUtilities.invokeLater(() -> {
       graphViewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-      graphViewer.enableAutoLayout();
       ViewPanel graphView = graphViewer.addDefaultView(false);
 
       Platform.runLater(() -> {
@@ -119,6 +121,11 @@ public class LinkCheckerController {
         graphPane.requestLayout();
       });
     });
+  }
+
+  private String loadStyleSheet() {
+    InputStream style = LinkCheckerController.class.getResourceAsStream("/graph.css");
+    return new Scanner(style, "utf-8").useDelimiter("\\Z").next();
   }
 
 
@@ -152,6 +159,12 @@ public class LinkCheckerController {
     startUrl.setDisable(true);
     scanButton.setDisable(true);
 
+    graphViewer.enableAutoLayout();
+
+    Node startNode = graph.addNode(startUrl.getText());
+    startNode.addAttribute("ui.label", startUrl.getText());
+    startNode.addAttribute("ui.class", "start");
+
     try {
       session = new ScanSession(new ScanSettings(startUrl.getText(), 1));
     } catch (MalformedURLException e) {
@@ -163,13 +176,13 @@ public class LinkCheckerController {
           mainApp.getPages().add(new PageInfoModel(pageInfo));
           if (graph.getNode(pageInfo.getUrl()) == null) {
             Node node = graph.addNode(pageInfo.getUrl());
-            node.addAttribute("ui.label", pageInfo.getUrl());
+            node.addAttribute("ui.label", shorten(pageInfo.getUrl()));
             //System.out.println("+ Node " + pageInfo.getUrl());
           }
           pageInfo.getLinks().forEach(link -> {
             if (graph.getNode(link) == null) {
               Node node = graph.addNode(link);
-              node.addAttribute("ui.label", link);
+              node.addAttribute("ui.label", shorten(link));
               //System.out.println("+ Node " + link);
             }
             if (graph.getEdge(String.format("%s -> %s", pageInfo.getUrl(), link)) == null) {
@@ -196,6 +209,10 @@ public class LinkCheckerController {
     scanButton.setText("Stop");
     scanButton.setDisable(false);
     scanButton.setOnAction(v -> stopScan());
+  }
+
+  private String shorten(String link) {
+    return link.startsWith(startUrl.getText()) ? "+" + link.substring(startUrl.getText().length()) : link;
   }
 
   private void stopScan() {

@@ -1,0 +1,17 @@
+node {
+  size: 12;
+  text-background-mode: plain;
+  text-alignment: at-right;
+  text-offset: 2;
+  text-size: 12;
+}
+
+node.start {
+  size: 20;
+	fill-color: green;
+	stroke-mode: plain;
+}
+
+edge {
+  arrow-size: 15,5;
+}
