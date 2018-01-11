@@ -21,6 +21,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -34,6 +35,8 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.view.ViewerListener;
+import org.graphstream.ui.view.ViewerPipe;
 import ru.stqa.linkchecker.ScanSession;
 import ru.stqa.linkchecker.ScanSettings;
 import ru.stqa.linkchecker.ScanStatus;
@@ -74,6 +77,8 @@ public class LinkCheckerController {
 
   private Graph graph;
   private Viewer graphViewer;
+  private ViewerPipe fromViewer;
+  private boolean doPump = true;
 
   private class PropertyModel {
     StringProperty key;
@@ -112,6 +117,36 @@ public class LinkCheckerController {
 
     SwingUtilities.invokeLater(() -> {
       graphViewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+      fromViewer = graphViewer.newViewerPipe();
+      fromViewer.addViewerListener(new ViewerListener() {
+        @Override
+        public void viewClosed(String viewName) {
+          doPump = false;
+        }
+
+        @Override
+        public void buttonPushed(String id) {
+        }
+
+        @Override
+        public void buttonReleased(String id) {
+          FilteredList<PageInfoModel> filtered = mainApp.getPages().filtered(pageInfo -> pageInfo.getUrl().equals(id));
+          if (filtered.size() > 0) {
+            showPageInfoProperty(filtered.get(0));
+          }
+        }
+      });
+      fromViewer.addAttributeSink(graph);
+      new Thread(() -> {
+        while (doPump) {
+          try {
+            fromViewer.blockingPump();
+          } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+          }
+        }
+      }).start();
+
       ViewPanel graphView = graphViewer.addDefaultView(false);
 
       Platform.runLater(() -> {
@@ -127,7 +162,6 @@ public class LinkCheckerController {
     InputStream style = LinkCheckerController.class.getResourceAsStream("/graph.css");
     return new Scanner(style, "utf-8").useDelimiter("\\Z").next();
   }
-
 
   @FXML
   private void goScan() {
@@ -150,7 +184,6 @@ public class LinkCheckerController {
       Optional<ButtonType> result = alert.showAndWait();
       if (result.isPresent() && result.get() == ButtonType.OK){
         mainApp.getPages().clear();
-        graph.clear();
       } else {
         return;
       }
@@ -159,7 +192,11 @@ public class LinkCheckerController {
     startUrl.setDisable(true);
     scanButton.setDisable(true);
 
+    fromViewer.pump();
     graphViewer.enableAutoLayout();
+
+    graph.clear();
+    graph.addAttribute("ui.stylesheet", loadStyleSheet());
 
     Node startNode = graph.addNode(startUrl.getText());
     startNode.addAttribute("ui.label", startUrl.getText());
@@ -231,6 +268,7 @@ public class LinkCheckerController {
     alert.setContentText("Scanning completed.");
     alert.showAndWait();
     restoreScanButton();
+    graphViewer.disableAutoLayout();
   }
 
   private void restoreScanButton() {

@@ -65,7 +65,7 @@
                                                 <TableView fx:id="pageTable" minHeight="50.0" prefHeight="161.0" prefWidth="198.0" AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10.0" AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
                                                   <columns>
                                                     <TableColumn fx:id="pageStatusColumn" prefWidth="50.0" text="Status" />
-                                                    <TableColumn fx:id="pageUrlColumn" prefWidth="200.0" text="URL" />
+                                                    <TableColumn fx:id="pageUrlColumn" prefWidth="1000.0" text="URL" />
                                                   </columns>
                                                 </TableView>
                                              </children>
@@ -83,7 +83,7 @@
                                                 <TableView fx:id="pageInfoTable" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10.0" AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
                                                   <columns>
                                                     <TableColumn fx:id="pageInfoKeyColumn" prefWidth="75.0" text="Property" />
-                                                    <TableColumn fx:id="pageInfoValueColumn" minWidth="-1.0" prefWidth="150.0" text="Value" />
+                                                    <TableColumn fx:id="pageInfoValueColumn" minWidth="-1.0" prefWidth="1000.0" text="Value" />
                                                   </columns>
                                                 </TableView>
                                              </children>
