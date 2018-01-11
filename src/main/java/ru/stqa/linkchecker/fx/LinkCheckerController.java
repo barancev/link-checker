@@ -94,6 +94,8 @@ public class LinkCheckerController {
 
   @FXML
   private void initialize() {
+    System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+
     pageUrlColumn.setCellValueFactory(cellData -> cellData.getValue().urlProperty());
     pageStatusColumn.setCellValueFactory(cellData -> cellData.getValue().httpStatusProperty());
 
