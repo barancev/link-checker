@@ -25,8 +25,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import org.controlsfx.control.table.TableFilter;
 import org.graphstream.graph.Edge;
@@ -42,7 +40,7 @@ import ru.stqa.linkchecker.ScanSettings;
 import ru.stqa.linkchecker.ScanStatus;
 
 import javax.swing.*;
-import java.io.*;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Optional;
 import java.util.Scanner;

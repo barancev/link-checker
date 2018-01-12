@@ -20,9 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static ru.stqa.linkchecker.ScanStatus.BROKEN;
-import static ru.stqa.linkchecker.ScanStatus.DONE;
-import static ru.stqa.linkchecker.ScanStatus.IN_PROGRESS;
+import static ru.stqa.linkchecker.ScanStatus.*;
 
 public class PageInfo {
 
