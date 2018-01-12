@@ -104,4 +104,8 @@ public class ScanSession implements Runnable {
   public boolean isStopped() {
     return stopped;
   }
+
+  public String getStartUrl() {
+    return settings.getStartUrl();
+  }
 }

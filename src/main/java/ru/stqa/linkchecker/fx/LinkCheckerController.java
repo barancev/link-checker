@@ -27,27 +27,17 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import org.controlsfx.control.table.TableFilter;
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
-import ru.stqa.linkchecker.ScanSession;
 import ru.stqa.linkchecker.ScanSettings;
-import ru.stqa.linkchecker.ScanStatus;
 
 import javax.swing.*;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Optional;
-import java.util.Scanner;
 
 public class LinkCheckerController {
-
-  private Main mainApp;
 
   @FXML
   private TextField startUrl;
@@ -71,9 +61,8 @@ public class LinkCheckerController {
   @FXML
   private TableColumn<PropertyModel, String> pageInfoValueColumn;
 
-  private ScanSession session;
+  private ScannerModel model;
 
-  private Graph graph;
   private Viewer graphViewer;
   private ViewerPipe fromViewer;
   private boolean doPump = true;
@@ -90,31 +79,15 @@ public class LinkCheckerController {
 
   private ObservableList<PropertyModel> pageProperties = FXCollections.observableArrayList();
 
-  public void setMainApp(Main mainApp) {
-    this.mainApp = mainApp;
-    pageTable.setItems(mainApp.getPages());
+  public void setModel(ScannerModel model) {
+    this.model = model;
+
+    pageTable.setItems(model.getPages());
     pageInfoTable.setItems(pageProperties);
     TableFilter.forTableView(pageTable).apply();
-  }
-
-  @FXML
-  private void initialize() {
-    System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
-
-    pageUrlColumn.setCellValueFactory(cellData -> cellData.getValue().urlProperty());
-    pageStatusColumn.setCellValueFactory(cellData -> cellData.getValue().httpStatusProperty());
-
-    pageTable.getSelectionModel().selectedItemProperty().addListener(
-      (observable, oldValue, newValue) -> showPageInfoProperty(newValue));
-
-    pageInfoKeyColumn.setCellValueFactory(cellData -> cellData.getValue().key);
-    pageInfoValueColumn.setCellValueFactory(cellData -> cellData.getValue().value);
-
-    graph = new SingleGraph("embedded");
-    graph.addAttribute("ui.stylesheet", loadStyleSheet());
 
     SwingUtilities.invokeLater(() -> {
-      graphViewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+      graphViewer = new Viewer(model.getGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
       fromViewer = graphViewer.newViewerPipe();
       fromViewer.addViewerListener(new ViewerListener() {
         @Override
@@ -128,13 +101,13 @@ public class LinkCheckerController {
 
         @Override
         public void buttonReleased(String id) {
-          FilteredList<PageInfoModel> filtered = mainApp.getPages().filtered(pageInfo -> pageInfo.getUrl().equals(id));
+          FilteredList<PageInfoModel> filtered = model.getPages().filtered(pageInfo -> pageInfo.getUrl().equals(id));
           if (filtered.size() > 0) {
             showPageInfoProperty(filtered.get(0));
           }
         }
       });
-      fromViewer.addAttributeSink(graph);
+      fromViewer.addAttributeSink(model.getGraph());
       new Thread(() -> {
         while (doPump) {
           try {
@@ -156,16 +129,24 @@ public class LinkCheckerController {
     });
   }
 
-  private String loadStyleSheet() {
-    InputStream style = LinkCheckerController.class.getResourceAsStream("/graph.css");
-    return new Scanner(style, "utf-8").useDelimiter("\\Z").next();
+  @FXML
+  private void initialize() {
+    System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+
+    pageUrlColumn.setCellValueFactory(cellData -> cellData.getValue().urlProperty());
+    pageStatusColumn.setCellValueFactory(cellData -> cellData.getValue().httpStatusProperty());
+
+    pageTable.getSelectionModel().selectedItemProperty().addListener(
+      (observable, oldValue, newValue) -> showPageInfoProperty(newValue));
+
+    pageInfoKeyColumn.setCellValueFactory(cellData -> cellData.getValue().key);
+    pageInfoValueColumn.setCellValueFactory(cellData -> cellData.getValue().value);
   }
 
   @FXML
   private void goScan() {
     if (startUrl.getText() == null || startUrl.getText().equals("")) {
       Alert alert = new Alert(Alert.AlertType.WARNING);
-      alert.initOwner(mainApp.getPrimaryStage());
       alert.setTitle("No Start URL");
       alert.setHeaderText(null);
       alert.setContentText("Please specify a start URL.");
@@ -173,16 +154,13 @@ public class LinkCheckerController {
       return;
     }
 
-    if (mainApp.getPages().size() > 0) {
+    if (model.getPages().size() > 0) {
       Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-      alert.initOwner(mainApp.getPrimaryStage());
       alert.setTitle("Confirmation");
       alert.setHeaderText("List of scanned pages is not empty");
       alert.setContentText("Do you want to delete results of the previous scan session and start a new one?");
       Optional<ButtonType> result = alert.showAndWait();
-      if (result.isPresent() && result.get() == ButtonType.OK){
-        mainApp.getPages().clear();
-      } else {
+      if (!result.isPresent() || result.get() != ButtonType.OK){
         return;
       }
     }
@@ -193,74 +171,26 @@ public class LinkCheckerController {
     fromViewer.pump();
     graphViewer.enableAutoLayout();
 
-    graph.clear();
-    graph.addAttribute("ui.stylesheet", loadStyleSheet());
-
-    Node startNode = graph.addNode(startUrl.getText());
-    startNode.addAttribute("ui.label", startUrl.getText());
-    startNode.addAttribute("ui.class", "start");
-
+    model.reset();
+    model.setFinishHandler(() -> Platform.runLater(this::scanCompleted));
     try {
-      session = new ScanSession(new ScanSettings(startUrl.getText(), 1));
+      model.startScan(new ScanSettings(startUrl.getText(), 1));
     } catch (MalformedURLException e) {
       e.printStackTrace();
     }
-    session.addListener(pageInfo -> {
-      if (pageInfo.getStatus() != ScanStatus.IN_PROGRESS) {
-        Platform.runLater(() -> {
-          mainApp.getPages().add(new PageInfoModel(pageInfo));
-          if (graph.getNode(pageInfo.getUrl()) == null) {
-            Node node = graph.addNode(pageInfo.getUrl());
-            node.addAttribute("ui.label", shorten(pageInfo.getUrl()));
-            //System.out.println("+ Node " + pageInfo.getUrl());
-          }
-          pageInfo.getLinks().forEach(link -> {
-            if (graph.getNode(link) == null) {
-              Node node = graph.addNode(link);
-              node.addAttribute("ui.label", shorten(link));
-              //System.out.println("+ Node " + link);
-            }
-            if (graph.getEdge(String.format("%s -> %s", pageInfo.getUrl(), link)) == null) {
-              Edge edge = graph.addEdge(String.format("%s -> %s", pageInfo.getUrl(), link), pageInfo.getUrl(), link, true);
-              //System.out.println("+ Edge " + edge.getId());
-            }
-          });
-        });
-      }
-    });
-    Thread t = new Thread(session);
-    t.start();
-
-    Thread waiter = new Thread(() -> {
-      try {
-        t.join();
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-      Platform.runLater(this::scanCompleted);
-    });
-    waiter.start();
 
     scanButton.setText("Stop");
     scanButton.setDisable(false);
     scanButton.setOnAction(v -> stopScan());
   }
 
-  private String shorten(String link) {
-    return link.startsWith(startUrl.getText()) ? "+" + link.substring(startUrl.getText().length()) : link;
-  }
-
   private void stopScan() {
-    session.interrupt();
-    while (!session.isStopped()) {
-      Thread.yield();
-    }
+    model.interruptScan();
     restoreScanButton();
   }
 
   private void scanCompleted() {
     Alert alert = new Alert(Alert.AlertType.INFORMATION);
-    alert.initOwner(mainApp.getPrimaryStage());
     alert.setTitle("Finish");
     alert.setHeaderText(null);
     alert.setContentText("Scanning completed.");

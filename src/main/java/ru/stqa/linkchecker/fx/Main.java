@@ -17,8 +17,6 @@
 package ru.stqa.linkchecker.fx;
 
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -29,8 +27,7 @@ import java.io.IOException;
 public class Main extends Application {
 
   private Stage primaryStage;
-
-  private ObservableList<PageInfoModel> pages = FXCollections.observableArrayList();
+  private ScannerModel model;
 
   public static void main(String[] args) {
     launch(args);
@@ -40,6 +37,8 @@ public class Main extends Application {
   public void start(Stage primaryStage) {
     this.primaryStage = primaryStage;
     this.primaryStage.setTitle("Link Checker");
+
+    model = new ScannerModel();
     initRootLayout();
   }
 
@@ -59,16 +58,8 @@ public class Main extends Application {
     primaryStage.show();
 
     LinkCheckerController controller = loader.getController();
-    controller.setMainApp(this);
+    controller.setModel(model);
 
     primaryStage.setOnCloseRequest((event) -> controller.closeGraphViewer());
-  }
-
-  public Stage getPrimaryStage() {
-    return primaryStage;
-  }
-
-  public ObservableList<PageInfoModel> getPages() {
-    return pages;
   }
 }
