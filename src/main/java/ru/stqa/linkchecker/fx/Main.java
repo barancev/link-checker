@@ -61,5 +61,9 @@ public class Main extends Application {
     controller.setModel(model);
 
     primaryStage.setOnCloseRequest((event) -> controller.closeGraphViewer());
+
+    primaryStage.widthProperty().addListener(n -> controller.repaintGraphView());
+    primaryStage.heightProperty().addListener(n -> controller.repaintGraphView());
+    primaryStage.maximizedProperty().addListener(x -> controller.repaintGraphView());
   }
 }

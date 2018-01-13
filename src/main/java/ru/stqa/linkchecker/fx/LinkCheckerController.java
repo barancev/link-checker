@@ -25,6 +25,8 @@ import javafx.collections.transformation.FilteredList;
 import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import org.controlsfx.control.table.TableFilter;
 import org.graphstream.ui.swingViewer.ViewPanel;
@@ -43,6 +45,9 @@ public class LinkCheckerController {
   private TextField startUrl;
   @FXML
   private Button scanButton;
+
+  @FXML
+  private SplitPane splitPane;
 
   @FXML
   private StackPane graphPane;
@@ -65,6 +70,7 @@ public class LinkCheckerController {
 
   private Viewer graphViewer;
   private ViewerPipe fromViewer;
+  private ViewPanel graphView;
   private boolean doPump = true;
 
   private class PropertyModel {
@@ -118,20 +124,19 @@ public class LinkCheckerController {
         }
       }).start();
 
-      ViewPanel graphView = graphViewer.addDefaultView(false);
+      graphView = graphViewer.addDefaultView(false);
 
       Platform.runLater(() -> {
         SwingNode swingNode = new SwingNode();
         swingNode.setContent(graphView);
         graphPane.getChildren().add(swingNode);
-        graphPane.requestLayout();
       });
     });
   }
 
   @FXML
   private void initialize() {
-    System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+    System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 
     pageUrlColumn.setCellValueFactory(cellData -> cellData.getValue().urlProperty());
     pageStatusColumn.setCellValueFactory(cellData -> cellData.getValue().httpStatusProperty());
@@ -141,6 +146,8 @@ public class LinkCheckerController {
 
     pageInfoKeyColumn.setCellValueFactory(cellData -> cellData.getValue().key);
     pageInfoValueColumn.setCellValueFactory(cellData -> cellData.getValue().value);
+
+    splitPane.getDividers().forEach(divider -> divider.positionProperty().addListener(n -> repaintGraphView()));
   }
 
   @FXML
@@ -212,6 +219,12 @@ public class LinkCheckerController {
       new PropertyModel("Content Type", pageInfo.getContentType()),
       new PropertyModel("HTTP Status", pageInfo.getHttpStatus()),
       new PropertyModel("Message", pageInfo.getMessage()));
+  }
+
+  public void repaintGraphView() {
+    if (graphView != null) {
+      SwingUtilities.invokeLater(graphView::repaint);
+    }
   }
 
   void closeGraphViewer() {
