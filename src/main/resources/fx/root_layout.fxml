@@ -43,7 +43,7 @@
                            <children>
                               <HBox prefWidth="200.0">
                                  <children>
-                                    <TextField fx:id="startUrl" promptText="Enter start URL" text="http://localhost/" HBox.hgrow="ALWAYS" />
+                                    <TextField fx:id="startUrl" onKeyPressed="#typingInStartUrl" promptText="Enter start URL" text="http://localhost/" HBox.hgrow="ALWAYS" />
                                     <Button fx:id="scanButton" mnemonicParsing="false" onAction="#goScan" text="Start" />
                                  </children>
                               </HBox>

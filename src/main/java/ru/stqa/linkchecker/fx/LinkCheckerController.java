@@ -27,6 +27,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import org.controlsfx.control.table.TableFilter;
 import org.graphstream.ui.swingViewer.ViewPanel;
@@ -148,6 +150,13 @@ public class LinkCheckerController {
     pageInfoValueColumn.setCellValueFactory(cellData -> cellData.getValue().value);
 
     splitPane.getDividers().forEach(divider -> divider.positionProperty().addListener(n -> repaintGraphView()));
+  }
+
+  @FXML
+  private void typingInStartUrl(KeyEvent event) {
+    if (event.getCode().equals(KeyCode.ENTER)) {
+      goScan();
+    }
   }
 
   @FXML
