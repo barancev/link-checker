@@ -30,6 +30,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 import org.controlsfx.control.table.TableFilter;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
@@ -70,6 +71,7 @@ public class LinkCheckerController {
 
   private ScannerModel model;
 
+  private Stage stage;
   private Viewer graphViewer;
   private ViewerPipe fromViewer;
   private ViewPanel graphView;
@@ -86,6 +88,10 @@ public class LinkCheckerController {
   }
 
   private ObservableList<PropertyModel> pageProperties = FXCollections.observableArrayList();
+
+  public void setStage(Stage stage) {
+    this.stage = stage;
+  }
 
   public void setModel(ScannerModel model) {
     this.model = model;
@@ -153,6 +159,27 @@ public class LinkCheckerController {
   }
 
   @FXML
+  private void createNewProject() {
+
+  }
+
+  @FXML
+  private void saveProject() {
+
+  }
+
+  @FXML
+  private void openProject() {
+
+  }
+
+  @FXML
+  private void exit() {
+    closeGraphViewer();
+    Platform.exit();
+  }
+
+  @FXML
   private void typingInStartUrl(KeyEvent event) {
     if (event.getCode().equals(KeyCode.ENTER)) {
       goScan();
@@ -163,6 +190,7 @@ public class LinkCheckerController {
   private void goScan() {
     if (startUrl.getText() == null || startUrl.getText().equals("")) {
       Alert alert = new Alert(Alert.AlertType.WARNING);
+      alert.initOwner(stage);
       alert.setTitle("No Start URL");
       alert.setHeaderText(null);
       alert.setContentText("Please specify a start URL.");
@@ -172,6 +200,7 @@ public class LinkCheckerController {
 
     if (model.getPages().size() > 0) {
       Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+      alert.initOwner(stage);
       alert.setTitle("Confirmation");
       alert.setHeaderText("List of scanned pages is not empty");
       alert.setContentText("Do you want to delete results of the previous scan session and start a new one?");
@@ -207,6 +236,7 @@ public class LinkCheckerController {
 
   private void scanCompleted() {
     Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.initOwner(stage);
     alert.setTitle("Finish");
     alert.setHeaderText(null);
     alert.setContentText("Scanning completed.");
@@ -237,6 +267,9 @@ public class LinkCheckerController {
   }
 
   void closeGraphViewer() {
-    graphViewer.close();
+    try {
+      graphViewer.close();
+    } catch (NullPointerException ignore) {
+    }
   }
 }

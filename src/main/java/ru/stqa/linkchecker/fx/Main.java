@@ -58,6 +58,7 @@ public class Main extends Application {
     primaryStage.show();
 
     LinkCheckerController controller = loader.getController();
+    controller.setStage(primaryStage);
     controller.setModel(model);
 
     primaryStage.setOnCloseRequest((event) -> controller.closeGraphViewer());
