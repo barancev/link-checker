@@ -21,13 +21,13 @@ import java.net.URL;
 
 public class ScanSettings {
 
-  private String startUrl;
-  private String startUrlHost;
-  private int threadCount;
+  private final String startUrl;
+  private final String baseUrl;
+  private final int threadCount;
 
   public ScanSettings(String startUrl, int threadCount) throws MalformedURLException {
     this.startUrl = startUrl;
-    this.startUrlHost = new URL(startUrl).getHost();
+    this.baseUrl = startUrl.substring(0, startUrl.lastIndexOf("/")+1);
     this.threadCount = threadCount;
   }
 
@@ -35,11 +35,11 @@ public class ScanSettings {
     return startUrl;
   }
 
-  public String getStartUrlHost() {
-    return startUrlHost;
+  public String getBaseUrl() {
+    return baseUrl;
   }
-
   public int getThreadCount() {
     return threadCount;
   }
+
 }

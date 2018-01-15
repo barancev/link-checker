@@ -30,15 +30,17 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.controlsfx.control.table.TableFilter;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
-import ru.stqa.linkchecker.ScanSettings;
 
 import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Optional;
 
@@ -95,6 +97,8 @@ public class LinkCheckerController {
 
   public void setModel(ScannerModel model) {
     this.model = model;
+
+    startUrl.textProperty().bindBidirectional(model.startUrlProperty());
 
     pageTable.setItems(model.getPages());
     pageInfoTable.setItems(pageProperties);
@@ -160,17 +164,46 @@ public class LinkCheckerController {
 
   @FXML
   private void createNewProject() {
-
+    model.reset();
   }
 
   @FXML
   private void saveProject() {
+    if (model.getSavedTo() != null) {
+      model.save();
 
+    } else {
+      FileChooser fileChooser = new FileChooser();
+      FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json");
+      fileChooser.getExtensionFilters().add(extFilter);
+
+      File file = fileChooser.showSaveDialog(stage);
+
+      if(file != null){
+        try {
+          model.saveTo(file.toPath());
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
   }
 
   @FXML
   private void openProject() {
+    FileChooser fileChooser = new FileChooser();
+    FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json");
+    fileChooser.getExtensionFilters().add(extFilter);
 
+    File file = fileChooser.showOpenDialog(stage);
+
+    if(file != null){
+      try {
+        model.loadFrom(file.toPath());
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   @FXML
@@ -213,15 +246,19 @@ public class LinkCheckerController {
     startUrl.setDisable(true);
     scanButton.setDisable(true);
 
-    fromViewer.pump();
     graphViewer.enableAutoLayout();
 
     model.reset();
     model.setFinishHandler(() -> Platform.runLater(this::scanCompleted));
     try {
-      model.startScan(new ScanSettings(startUrl.getText(), 1));
+      model.startScan();
     } catch (MalformedURLException e) {
       e.printStackTrace();
+
+      startUrl.setDisable(false);
+      scanButton.setDisable(false);
+      graphViewer.disableAutoLayout();
+      return;
     }
 
     scanButton.setText("Stop");

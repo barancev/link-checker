@@ -71,7 +71,7 @@ public class ScanSession implements Runnable {
           PageInfo pageInfo = PageInfo.inProgress(url).build();
           listeners.forEach(l -> l.accept(pageInfo));
           results.addPageInfo(pageInfo);
-          service.submit(new ScanWorker(this, url, url.startsWith(settings.getStartUrl())));
+          service.submit(new ScanWorker(this, url, url.startsWith(settings.getBaseUrl())));
           workerCounter.incrementAndGet();
         }
       });
@@ -103,9 +103,5 @@ public class ScanSession implements Runnable {
 
   public boolean isStopped() {
     return stopped;
-  }
-
-  public String getStartUrl() {
-    return settings.getStartUrl();
   }
 }

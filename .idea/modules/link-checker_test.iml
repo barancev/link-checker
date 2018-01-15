@@ -15,6 +15,7 @@
     <orderEntry type="library" name="Gradle: com.beust:jcommander:1.72" level="project" />
     <orderEntry type="library" name="Gradle: org.controlsfx:controlsfx:8.40.14" level="project" />
     <orderEntry type="library" name="Gradle: org.graphstream:gs-ui:1.3" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.2" level="project" />
     <orderEntry type="library" name="Gradle: org.junit.jupiter:junit-jupiter-api:5.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-server:9.4.8.v20171121" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore:4.4.7" level="project" />
