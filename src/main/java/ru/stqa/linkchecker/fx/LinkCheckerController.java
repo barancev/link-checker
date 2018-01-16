@@ -50,6 +50,8 @@ public class LinkCheckerController {
   private TextField startUrl;
   @FXML
   private Button scanButton;
+  @FXML
+  private Spinner<Integer> threadCount;
 
   @FXML
   private SplitPane splitPane;
@@ -99,6 +101,7 @@ public class LinkCheckerController {
     this.model = model;
 
     startUrl.textProperty().bindBidirectional(model.startUrlProperty());
+    threadCount.getValueFactory().valueProperty().bindBidirectional(model.threadCountProperty().asObject());
 
     pageTable.setItems(model.getPages());
     pageInfoTable.setItems(pageProperties);

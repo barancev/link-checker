@@ -17,7 +17,6 @@
 package ru.stqa.linkchecker.fx;
 
 import com.google.gson.Gson;
-import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -70,6 +69,10 @@ public class ScannerModel {
 
   public StringProperty startUrlProperty() {
     return startUrl;
+  }
+
+  public IntegerProperty threadCountProperty() {
+    return threadCount;
   }
 
   public ObservableList<PageInfoModel> getPages() {
@@ -135,7 +138,7 @@ public class ScannerModel {
             //System.out.println("+ Edge " + edge.getId());
           }
         });
-        Platform.runLater(() -> pages.add(new PageInfoModel(pageInfo)));
+        pages.add(new PageInfoModel(pageInfo));
       }
     });
     Thread t = new Thread(session);
