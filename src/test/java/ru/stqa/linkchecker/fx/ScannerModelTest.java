@@ -58,6 +58,7 @@ public class ScannerModelTest {
     String startUrl = testServer.page("multi_link_page.html");
     ScannerModel model = new ScannerModel();
     model.startUrlProperty().setValue(startUrl);
+    model.threadCountProperty().setValue(5);
     assertFalse(model.isSaved());
     assertNull(model.getSavedTo());
 
@@ -70,7 +71,7 @@ public class ScannerModelTest {
     JsonElement savedProject = new JsonParser().parse(new FileReader(tempFile.toFile()));
     JsonObject settings = savedProject.getAsJsonObject().getAsJsonObject("settings");
     assertEquals(startUrl, settings.get("startUrl").getAsString());
-    assertEquals(10, settings.get("threadCount").getAsInt());
+    assertEquals(5, settings.get("threadCount").getAsInt());
 
     ScannerModel model2 = new ScannerModel();
     model2.loadFrom(tempFile);
@@ -78,6 +79,7 @@ public class ScannerModelTest {
     assertTrue(model2.isSaved());
     assertEquals(tempFile, model.getSavedTo());
     assertEquals(startUrl, model2.startUrlProperty().get());
+    assertEquals(5, model2.threadCountProperty().get());
   }
 
 }
