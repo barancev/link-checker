@@ -248,6 +248,7 @@ public class LinkCheckerController {
 
     startUrl.setDisable(true);
     scanButton.setDisable(true);
+    threadCount.setDisable(true);
 
     graphViewer.enableAutoLayout();
 
@@ -266,6 +267,7 @@ public class LinkCheckerController {
 
     scanButton.setText("Stop");
     scanButton.setDisable(false);
+    scanButton.setStyle("-fx-background-color: yellow");
     scanButton.setOnAction(v -> stopScan());
   }
 
@@ -288,6 +290,8 @@ public class LinkCheckerController {
   private void restoreScanButton() {
     startUrl.setDisable(false);
     scanButton.setText("Start");
+    scanButton.setStyle("");
+    threadCount.setDisable(false);
     scanButton.setOnAction(v -> goScan());
   }
 
