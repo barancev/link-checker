@@ -3,8 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/link-checker.iml" filepath="$PROJECT_DIR$/link-checker.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/link-checker_main.iml" filepath="$PROJECT_DIR$/.idea/modules/link-checker_main.iml" group="link-checker" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/link-checker_test.iml" filepath="$PROJECT_DIR$/.idea/modules/link-checker_test.iml" group="link-checker" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/link-checker.main.iml" filepath="$PROJECT_DIR$/.idea/modules/link-checker.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/link-checker.test.iml" filepath="$PROJECT_DIR$/.idea/modules/link-checker.test.iml" />
     </modules>
   </component>
 </project>

@@ -2,8 +2,10 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
-      <module name="link-checker_main" target="1.8" />
-      <module name="link-checker_test" target="1.8" />
+      <module name="link-checker.main" target="11" />
+      <module name="link-checker.test" target="11" />
+      <module name="link-checker_main" target="11" />
+      <module name="link-checker_test" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>
